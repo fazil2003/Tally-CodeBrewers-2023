@@ -11,12 +11,12 @@ const {
   hardTimer,
 } = require("../controllers/practiceController");
 
-router.get("/wordcount/easy", easyWordCount);
-router.get("/wordcount/medium", mediumWordCount);
-router.get("/wordcount/hard", hardWordCount);
+router.post("/wordcount/easy", easyWordCount);
+router.post("/wordcount/medium", mediumWordCount);
+router.post("/wordcount/hard", hardWordCount);
 
-router.get("/timer/easy", easyTimer);
-router.get("/timer/medium", mediumTimer);
-router.get("/timer/hard", hardTimer);
+router.post("/timer/easy", easyTimer);
+router.post("/timer/medium", mediumTimer);
+router.post("/timer/hard", hardTimer);
 
 module.exports = router;
