@@ -15,13 +15,13 @@ app.use(express.json());
 
 app.use("/api/v1/login", require("./routes/loginRoute"));
 app.use("/api/v1/register", require("./routes/registerRoute"));
-app.use("/api/v1/user", require("./routes/userRoute"));
+app.use("/api/v1/practice", require("./routes/practiceRoute"));
 
 app.use(errorHandler);
 
 const start = async () => {
   try {
-    await dbConnect();
+    // await dbConnect();
     app.listen(port, () => {
       console.log(`Server is listening on port ${port}...`);
     });
