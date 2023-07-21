@@ -10,6 +10,19 @@ function Practice() {
   const [typedWords, setTypedWords] = useState("");
   const [words, setWords] = useState([]);
   const [wordPointer, setWordPointer] = useState(0);
+  const [textSpans, setTextSpans] = useState(<></>);
+
+  function getMismatchPosition(word1, word2) {
+    let i = 0;
+    let j = 0;
+
+    while (i < word1.length && j < word2.length && word1[i] === word2[j]) {
+      ++i;
+      ++j;
+    }
+
+    return i;
+  }
 
   function handlePracticeWordsChange(event) {
     setPracticeWords(event.target.value);
@@ -32,6 +45,16 @@ function Practice() {
       })
       .then((response) => {
         setSentence(response.data.sentence);
+        setTextSpans(
+          <>
+            <span className="pending-characters current-character">
+              {response.data.sentence[0]}
+            </span>
+            <span className="pending-characters">
+              {response.data.sentence.slice(1)}
+            </span>
+          </>
+        );
         setTypedWords("");
         setWords(response.data.sentence.split(" "));
         setWordPointer(0);
@@ -48,6 +71,7 @@ function Practice() {
         typedWordsArray.length !== 1
       ) {
         let i = wordPointer;
+
         while (
           i < words.length &&
           typedWordsArray[0] === words[i] &&
@@ -56,10 +80,61 @@ function Practice() {
           typedWordsArray.shift();
           ++i;
         }
+
         setWordPointer(i);
         setTypedWords(typedWordsArray.join(" "));
+
+        let completedCharacters = 0;
+
+        for (let j = 0; j < i; ++j) {
+          completedCharacters += words[j].length + 1;
+        }
+
+        completedCharacters += getMismatchPosition(
+          typedWordsArray.join(" "),
+          words[i]
+        );
+
+        setTextSpans(
+          <>
+            <span className="completed-characters">
+              {sentence.slice(0, completedCharacters)}
+            </span>
+            <span className="pending-characters current-character">
+              {sentence[completedCharacters]}
+            </span>
+            <span className="pending-characters">
+              {sentence.slice(completedCharacters + 1)}
+            </span>
+          </>
+        );
       } else {
         setTypedWords(event.target.value);
+
+        let completedCharacters = 0;
+
+        for (let i = 0; i < wordPointer; ++i) {
+          completedCharacters += words[i].length + 1;
+        }
+
+        completedCharacters += getMismatchPosition(
+          event.target.value,
+          words[wordPointer]
+        );
+
+        setTextSpans(
+          <>
+            <span className="completed-characters">
+              {sentence.slice(0, completedCharacters)}
+            </span>
+            <span className="pending-characters current-character">
+              {sentence[completedCharacters]}
+            </span>
+            <span className="pending-characters">
+              {sentence.slice(completedCharacters + 1)}
+            </span>
+          </>
+        );
       }
     }
   }
@@ -133,7 +208,7 @@ function Practice() {
         </button>
       </div>
 
-      <p className="sentence">{sentence}</p>
+      <p className="sentence">{textSpans}</p>
       <textarea value={typedWords} onChange={handleTypedWordsChange} />
     </div>
   );
