@@ -44,6 +44,8 @@ function Practice() {
 
 	function getSentence() {
 		document.getElementById('footer').style.visibility = 'hidden';
+		// enable the textarea.
+		document.getElementsByClassName("textarea")[0].disabled = false;
 		document.getElementsByClassName("textarea")[0].focus();
 		const practiceUrl =
 			mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
@@ -185,6 +187,8 @@ function Practice() {
 		const minutes = Math.floor((total / 1000 / 60) % 60);
 		const hours = Math.floor((total / 1000 / 60 / 60) % 24);
 		if (seconds == 0) {
+			// Disable the textarea
+			document.getElementsByClassName("textarea")[0].disabled = true;
 			document.getElementById('footer').style.visibility = "visible";
 		}
 		return {
