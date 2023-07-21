@@ -16,6 +16,7 @@ app.use(express.json());
 app.use("/api/v1/login", require("./routes/loginRoute"));
 app.use("/api/v1/register", require("./routes/registerRoute"));
 app.use("/api/v1/practice", require("./routes/practiceRoute"));
+app.use("/api/v1/private", require("./routes/privateRoute"));
 
 app.use(errorHandler);
 
