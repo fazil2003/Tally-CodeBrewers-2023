@@ -1,9 +1,9 @@
 import axios from "axios";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import defaultVariables from "../variables";
 import Footer from "./footer";
 
-function Practice() {
+function Private() {
   const [mode, setMode] = useState("words");
   const [sentence, setSentence] = useState("");
   const [difficulty, setDifficulty] = useState("easy");
@@ -251,6 +251,10 @@ function Practice() {
     };
   }, [timerState, time, mode]);
 
+  function testSocket(event) {
+    event.preventDefault();
+  }
+
   return (
     <div className="container">
       <div className="top-options">
@@ -312,9 +316,13 @@ function Practice() {
         value={typedWords}
         onChange={handleTypedWordsChange}
       />
+      <form onSubmit={testSocket}>
+        <input type="text" placeholder="msg" />
+        <input type="submit" value="send" />
+      </form>
       <Footer />
     </div>
   );
 }
 
-export default Practice;
+export default Private;
