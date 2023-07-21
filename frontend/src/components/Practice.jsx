@@ -17,6 +17,7 @@ function Practice() {
   const [time, setTime] = useState(0);
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
 
   function getMismatchPosition(word1, word2) {
     if (word1 === undefined || word2 === undefined) {
@@ -61,6 +62,7 @@ function Practice() {
   }
 
   function getSentence() {
+    setWordCount(0);
     document.getElementById("textarea").focus();
     setFlag(false);
     if (mode === "words") {
@@ -138,6 +140,10 @@ function Practice() {
         } else {
           setTypedWords(typedWordsArray.join(" ").trimStart());
         }
+
+        setWordCount((oldValue) => {
+          return oldValue + 1;
+        });
 
         let completedCharacters = 0;
 
@@ -312,7 +318,7 @@ function Practice() {
         value={typedWords}
         onChange={handleTypedWordsChange}
       />
-      <Footer />
+      <Footer speed = { time? Math.round((wordCount / time) * 60) : 0 } />
     </div>
   );
 }
