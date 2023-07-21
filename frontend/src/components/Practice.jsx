@@ -60,6 +60,7 @@ function Practice() {
   }
 
   function getSentence() {
+    document.getElementById('textarea').focus();
     setFlag(false);
     if (mode === "words") {
       setTime(0);
@@ -102,7 +103,6 @@ function Practice() {
     }
 
     if (
-      timerState === false ||
       words.length === 0 ||
       wordPointer === words.length ||
       (event.target.value.length > typedWords.length &&
@@ -303,6 +303,7 @@ function Practice() {
 
       <p className="sentence">{textSpans}</p>
       <textarea
+        id="textarea"
         style={{ width: "100", height: "100" }}
         className="textarea"
         value={typedWords}
