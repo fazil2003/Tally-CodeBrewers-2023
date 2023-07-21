@@ -4,11 +4,24 @@ import defaultVariables from "../variables";
 import Footer from "./footer";
 import ProgressBar from "./ProgressBar";
 import io from "socket.io-client";
+import { useParams } from "react-router-dom";
 
-function Private(props) {
+function Private() {
+  const params = useParams();
+  const roomID = params.roomID;
   const socket = io.connect(
-    defaultVariables.backendUrl + "/private/room/" + props.roomID
+    // defaultVariables.backendUrl + "/private/room/" + roomID
+    "http://localhost:5010"
   );
+
+  socket.emit(
+    "message",
+    JSON.stringify({
+      username: localStorage.getItem("username"),
+      subject: "join",
+    })
+  );
+
   const [mode, setMode] = useState("words");
   const [sentence, setSentence] = useState("");
   const [difficulty, setDifficulty] = useState("easy");
@@ -24,6 +37,7 @@ function Private(props) {
   const [flag, setFlag] = useState(false);
   const [progressDivs, setProgressDivs] = useState([
     <ProgressBar
+      id={localStorage.getItem("username")}
       name={localStorage.getItem("username")}
       percentage={"0"}
       inpercent={"0%"}
@@ -33,15 +47,27 @@ function Private(props) {
   socket.on("message", (message) => {
     const { username, subject } = JSON.parse(message);
     if (subject === "join") {
-      let response = {
-        username: localStorage.getItem("username"),
-        subject: "join",
-      };
-      socket.emit("message", JSON.stringify(response));
+      socket.emit(
+        "message",
+        JSON.stringify({
+          username: localStorage.getItem("username"),
+          subject: "join",
+        })
+      );
       setProgressDivs((oldValue) => {
+        for (const progressBar of oldValue) {
+          if (progressBar.id === username) {
+            return oldValue;
+          }
+        }
         return [
           ...oldValue,
-          <ProgressBar name={username} percentage={"0"} inpercent={"0%"} />,
+          <ProgressBar
+            id={username}
+            name={username}
+            percentage={"0"}
+            inpercent={"0%"}
+          />,
         ];
       });
     }

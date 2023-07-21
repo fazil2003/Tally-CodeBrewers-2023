@@ -25,7 +25,8 @@ function CreateRoom() {
       })
       .then((response) => {
         alert("Room created successfully");
-        window.location = defaultVariables.frontendUrl + "/private";
+        window.location =
+          defaultVariables.frontendUrl + "/private/" + response.data.roomID;
       })
       .catch((error) => {
         alert(`Error: ${error}`);

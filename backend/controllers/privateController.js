@@ -2,12 +2,6 @@ const asyncHandler = require("express-async-handler");
 const Room = require("../models/roomModel");
 
 const { easyWords, mediumWords, hardWords } = require("./resources");
-const express = require("express");
-const http = require("http");
-const socketio = require("socket.io");
-const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
 
 const createRoom = asyncHandler(async (req, res) => {
   const { password } = req.body;
@@ -50,31 +44,32 @@ const joinRoom = asyncHandler(async (req, res) => {
   }
 });
 
-const testRoom = asyncHandler(async (req, res) => {
-  const roomID = req.params.roomID;
+// const testRoom = asyncHandler(async (req, res) => {
+//   console.log("123");
+//   const roomID = req.params.roomID;
 
-  const room = await Room.findOne({
-    roomID: roomID,
-  });
+//   const room = await Room.findOne({
+//     roomID: roomID,
+//   });
 
-  if (room) {
-    io.on("connection", (socket) => {
-      console.log("New connection");
-      // socket.emit("message", "Welcome to the room");
-      // socket.broadcast.emit("message", "A user has joined the room");
+//   if (room) {
+//     io.on("connection", (socket) => {
+//       console.log("New connection");
+//       // socket.emit("message", "Welcome to the room");
+//       // socket.broadcast.emit("message", "A user has joined the room");
 
-      socket.on("disconnect", () => {
-        io.emit("message", "A user has left the room");
-      });
+//       socket.on("disconnect", () => {
+//         io.emit("message", "A user has left the room");
+//       });
 
-      socket.on("message", (data) => {
-        io.emit("message", JSON.stringify(data));
-      });
-    });
-  } else {
-    res.status(401);
-    throw new Error("Invalid room credentials");
-  }
-});
+//       socket.on("message", (data) => {
+//         io.emit("message", JSON.stringify(data));
+//       });
+//     });
+//   } else {
+//     res.status(401);
+//     throw new Error("Invalid room credentials");
+//   }
+// });
 
-module.exports = { createRoom, joinRoom, testRoom };
+module.exports = { createRoom, joinRoom };

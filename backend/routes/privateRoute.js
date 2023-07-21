@@ -8,8 +8,8 @@ const {
   testRoom,
 } = require("../controllers/privateController");
 
-router.post("/createroom", createRoom, validateToken);
-router.post("/joinroom", joinRoom, validateToken);
-router.get("/room/:roomID", testRoom);
+router.post("/createroom", validateToken, createRoom);
+router.post("/joinroom", validateToken, joinRoom);
+// router.get("/room/:roomID", testRoom);
 
 module.exports = router;
