@@ -177,6 +177,9 @@ function Practice() {
     const seconds = Math.floor((total / 1000) % 60);
     const minutes = Math.floor((total / 1000 / 60) % 60);
     const hours = Math.floor((total / 1000 / 60 / 60) % 24);
+	if (seconds == 0){
+		document.getElementById('footer').style.visibility = "visible";
+	}
     return {
       total,
       hours,
@@ -199,7 +202,7 @@ function Practice() {
   };
 
   const clearTimer = (e) => {
-    setTimer("00:00:10");
+    setTimer("00:00:03");
     if (Ref.current) clearInterval(Ref.current);
     const id = setInterval(() => {
       startTimer(e);
@@ -209,7 +212,7 @@ function Practice() {
 
   const getDeadTime = () => {
     let deadline = new Date();
-    deadline.setSeconds(deadline.getSeconds() + 10);
+    deadline.setSeconds(deadline.getSeconds() + 3);
     return deadline;
   };
 
