@@ -103,6 +103,8 @@ button {
 
 .mismatch {
   color: var(--mismatch-color);
+  text-decoration: underline;
+  text-decoration-color: var(--mismatch-color);
 }
 
 textarea{
