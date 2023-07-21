@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import defaultVariables from "../variables";
+import Footer from "./footer";
 
 function Practice() {
   const [mode, setMode] = useState("words");
@@ -309,6 +310,7 @@ function Practice() {
         value={typedWords}
         onChange={handleTypedWordsChange}
       />
+	  <Footer />
     </div>
   );
 }

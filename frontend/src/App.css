@@ -127,11 +127,6 @@ textarea {
   outline: none;
 }
 
-/* Footer */
-#footer {
-  visibility: hidden;
-}
-
 .footer {
   height: 80px;
   width: 100%;
