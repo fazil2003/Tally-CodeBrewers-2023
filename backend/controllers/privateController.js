@@ -9,7 +9,6 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-
 const createRoom = asyncHandler(async (req, res) => {
   const { password } = req.body;
 
@@ -51,13 +50,12 @@ const joinRoom = asyncHandler(async (req, res) => {
   }
 });
 
-
 const testRoom = asyncHandler(async (req, res) => {
   const roomID = req.params.roomID;
 
   const room = await Room.findOne({
     roomID: roomID,
-  })
+  });
 
   if (room) {
     io.on("connection", (socket) => {
@@ -72,13 +70,11 @@ const testRoom = asyncHandler(async (req, res) => {
       socket.on("message", (data) => {
         io.emit("message", JSON.stringify(data));
       });
-    })
-
+    });
   } else {
     res.status(401);
     throw new Error("Invalid room credentials");
   }
-
-})
+});
 
 module.exports = { createRoom, joinRoom, testRoom };
