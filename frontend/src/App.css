@@ -104,3 +104,24 @@ button {
 .mismatch {
   color: var(--mismatch-color);
 }
+
+/* Footer */
+.footer {
+  height: 80px;
+  width: 100%;
+  bottom: -1px;
+  left: 0;
+  position: fixed;
+  background-color: var(--highlight-color);
+  display: flex;
+  z-index: 100;
+}
+
+.footer p {
+  flex: 1;
+  text-align: center;
+  font-size: 24px;
+  line-height: 35px;
+  color: var(--dark-color);
+  font-weight: 600;
+}
