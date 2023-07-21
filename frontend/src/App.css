@@ -75,8 +75,16 @@ button {
 }
 
 .top-options .select,
-.top-options .button {
+.top-options .button,
+.top-options p {
   flex: 1;
+}
+
+.top-options p{
+  text-align: center;
+  line-height: 40px;
+  color: var(--highlight-color);
+  font-weight: 700;
 }
 
 .sentence {
