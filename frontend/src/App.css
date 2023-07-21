@@ -105,6 +105,12 @@ button {
   color: var(--mismatch-color);
 }
 
+textarea{
+  background: var(--dark-color);
+  border: none;
+  outline: none;
+}
+
 /* Footer */
 .footer {
   height: 80px;
