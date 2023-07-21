@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import defaultVariables from "../variables";
 
 function Practice() {
@@ -32,6 +32,31 @@ function Practice() {
 				setSentence(response.data.sentence);
 			});
 	}
+
+	useEffect(() => {
+
+		function handleKeyDown(e) {
+			let char;
+			// 16 - Shift Key
+			if(e.keyCode != 16 && e.keyCode != 20){
+				if(e.shiftKey || e.getModifierState("CapsLock")){
+					char = String.fromCharCode(e.keyCode).toUpperCase();
+				}
+				else{
+					char = String.fromCharCode(e.keyCode).toLowerCase();
+				}
+				alert(char);
+			}
+		}
+
+		document.addEventListener('keydown', handleKeyDown);
+
+		// Don't forget to clean up
+		return function cleanup() {
+			document.removeEventListener('keydown', handleKeyDown);
+		}
+
+	}, []);
 
 	return (
 		<div className="container">
@@ -72,9 +97,9 @@ function Practice() {
 				<button className='button' onClick={getSentence}>Set</button>
 
 			</div>
-			
+
 			<p className='sentence'>{sentence}</p>
-			
+
 		</div>
 	);
 }
