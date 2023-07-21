@@ -4,7 +4,7 @@ const Room = require("../models/roomModel");
 const { easyWords, mediumWords, hardWords } = require("./resources");
 
 const createRoom = asyncHandler(async (req, res) => {
-  const { name, password } = req.body;
+  const { password } = req.body;
 
   if (password.length < 5) {
     res.status(400);
@@ -22,14 +22,14 @@ const createRoom = asyncHandler(async (req, res) => {
   const room = await Room.create({
     roomID: roomID,
     password: password,
-    creator: name,
+    creator: req.user.username,
   });
 
   res.status(201).json(room);
 });
 
 const joinRoom = asyncHandler(async (req, res) => {
-  const { roomID, password, name } = req.body;
+  const { roomID, password } = req.body;
 
   const room = await Room.findOne({
     roomID: roomID,

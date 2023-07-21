@@ -6,6 +6,8 @@ import Footer from "./components/footer";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import "./App.css";
+import CreateRoom from "./components/CreateRoom";
+import JoinRoom from "./components/JoinRoom";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path="/login" element={<Login />}></Route>
           <Route path="/practice" element={<Practice />}></Route>
           <Route path="/private" element={<Private />}></Route>
+          <Route path="/createroom" element={<CreateRoom />}></Route>
+          <Route path="/joinroom" element={<JoinRoom />}></Route>
         </Routes>
       </Router>
     </>

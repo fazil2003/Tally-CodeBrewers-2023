@@ -4,7 +4,7 @@ const validateToken = require("../middleware/validateTokenHandler");
 
 const { createRoom, joinRoom } = require("../controllers/privateController");
 
-router.post("/private/createroom", createRoom);
-router.post("/private/joinroom", joinRoom);
+router.post("/createroom", createRoom, validateToken);
+router.post("/joinroom", joinRoom, validateToken);
 
 module.exports = router;
