@@ -80,7 +80,7 @@ button {
   flex: 1;
 }
 
-.top-options p{
+.top-options p {
   text-align: center;
   line-height: 40px;
   color: var(--highlight-color);
@@ -95,7 +95,7 @@ button {
   letter-spacing: 2px;
   color: rgb(220, 220, 200);
   line-height: 1.5em;
-  height: 3em;       
+  height: 3em;
   overflow: hidden;
   /* overflow-y: scroll; */
 }
@@ -119,14 +119,14 @@ button {
   text-decoration-color: var(--mismatch-color);
 }
 
-textarea{
+textarea {
   background: var(--dark-color);
   border: none;
   outline: none;
 }
 
 /* Footer */
-#footer{
+#footer {
   visibility: hidden;
 }
 
@@ -148,4 +148,12 @@ textarea{
   line-height: 35px;
   color: var(--dark-color);
   font-weight: 600;
+}
+
+.timer {
+  display: flex;
+  min-width: 90px;
+  max-width: 90px;
+  justify-content: center;
+  align-items: center;
 }

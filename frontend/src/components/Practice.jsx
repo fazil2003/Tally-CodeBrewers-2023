@@ -1,22 +1,27 @@
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import defaultVariables from "../variables";
-import Timer from "./timer/countup/Timer";
 
 function Practice() {
   const [mode, setMode] = useState("words");
   const [sentence, setSentence] = useState("");
   const [difficulty, setDifficulty] = useState("easy");
   const [practiceWords, setPracticeWords] = useState("10");
-  const [practiceTime, setPracticeTime] = useState(15);
+  const [practiceTime, setPracticeTime] = useState("15");
   const [typedWords, setTypedWords] = useState("");
   const [words, setWords] = useState([]);
   const [wordPointer, setWordPointer] = useState(0);
   const [textSpans, setTextSpans] = useState(<></>);
   const [mistakes, setMistakes] = useState(0);
-  const [stepUpTimer, setStepUpTimer] = useState(true);
+  const [time, setTime] = useState(0);
+  const [timerState, setTimerState] = useState(false);
+  const [flag, setFlag] = useState(false);
 
   function getMismatchPosition(word1, word2) {
+    if (word1 === undefined || word2 === undefined) {
+      return 0;
+    }
+
     let i = 0;
     let j = 0;
 
@@ -34,16 +39,20 @@ function Practice() {
 
   function handlePracticeTimeChange(event) {
     setPracticeTime(event.target.value);
-    clearTimer(getDeadTime(parseInt(event.target.value)));
+    setTime(event.target.value);
   }
 
   function handleModeChange(event) {
-    if (event.target.value == "timer") {
-      setStepUpTimer(false);
-    } else {
-      setStepUpTimer(true);
-    }
+    setTimerState(false);
+    setFlag(false);
     setMode(event.target.value);
+    if (event.target.value === "words") {
+      setPracticeWords("10");
+      setTime(0);
+    } else {
+      setPracticeTime("15");
+      setTime(15);
+    }
   }
 
   function handleDifficultyChange(event) {
@@ -51,17 +60,14 @@ function Practice() {
   }
 
   function getSentence() {
-    // start the step up timer.
-    handleReset();
-    handleStart();
-    getSentenceInit();
-  }
+    setFlag(false);
+    if (mode === "words") {
+      setTime(0);
+    } else {
+      setTime(parseInt(practiceTime));
+    }
 
-  function getSentenceInit() {
-    document.getElementById("footer").style.visibility = "hidden";
-    // enable the textarea.
-    document.getElementsByClassName("textarea")[0].disabled = false;
-    document.getElementsByClassName("textarea")[0].focus();
+    setTimerState(false);
 
     const practiceUrl =
       mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
@@ -88,7 +94,15 @@ function Practice() {
   }
 
   function handleTypedWordsChange(event) {
+    if (timerState === false && flag === false) {
+      setTimerState(true);
+      setFlag(true);
+    } else if (timerState === false && flag === true) {
+      setTypedWords("");
+    }
+
     if (
+      timerState === false ||
       words.length === 0 ||
       wordPointer === words.length ||
       (event.target.value.length > typedWords.length &&
@@ -116,7 +130,13 @@ function Practice() {
         }
 
         setWordPointer(i);
-        setTypedWords(typedWordsArray.join(" ").trimStart());
+
+        if (i === words.length) {
+          setTypedWords("");
+          setTimerState(false);
+        } else {
+          setTypedWords(typedWordsArray.join(" ").trimStart());
+        }
 
         let completedCharacters = 0;
 
@@ -210,125 +230,25 @@ function Practice() {
     }
   }
 
-  // timer
   useEffect(() => {
-    getSentenceInit();
-  }, []);
-
-  const Ref = useRef(null);
-
-  // The state for our timer
-  const [timer, setTimer] = useState("00:00:00");
-
-  const getTimeRemaining = (e) => {
-    const total = Date.parse(e) - Date.parse(new Date());
-    const seconds = Math.floor((total / 1000) % 60);
-    const minutes = Math.floor((total / 1000 / 60) % 60);
-    const hours = Math.floor((total / 1000 / 60 / 60) % 24);
-    if (seconds == 0) {
-      // Disable the textarea
-      document.getElementsByClassName("textarea")[0].disabled = true;
-      document.getElementById("footer").style.visibility = "visible";
+    let clock;
+    if (timerState === true) {
+      clock = setInterval(() => {
+        if (mode === "words") {
+          setTime((oldValue) => oldValue + 1);
+        } else {
+          if (time <= 1) {
+            setTimerState(false);
+          }
+          setTime((oldValue) => oldValue - 1);
+        }
+      }, 1000);
     }
-    return {
-      total,
-      hours,
-      minutes,
-      seconds,
-    };
-  };
 
-  const startTimer = (e) => {
-    let { total, hours, minutes, seconds } = getTimeRemaining(e);
-    if (total >= 0) {
-      setTimer(
-        (hours > 9 ? hours : "0" + hours) +
-          ":" +
-          (minutes > 9 ? minutes : "0" + minutes) +
-          ":" +
-          (seconds > 9 ? seconds : "0" + seconds)
-      );
-    }
-  };
-
-  const clearTimer = (e) => {
-    setTimer("00:00:00");
-    if (Ref.current) clearInterval(Ref.current);
-    const id = setInterval(() => {
-      startTimer(e);
-    }, 1000);
-    Ref.current = id;
-  };
-
-  const getDeadTime = (time) => {
-    let deadline = new Date();
-    deadline.setSeconds(deadline.getSeconds() + time);
-    return deadline;
-  };
-
-  useEffect(() => {
-    clearTimer(getDeadTime(0));
-  }, []);
-
-  const onClickReset = () => {
-    clearTimer(getDeadTime(0));
-  };
-
-  // Count Up Timer
-  const [isActive, setIsActive] = useState(false);
-  const [isPaused, setIsPaused] = useState(true);
-  const [time, setTime] = useState(0);
-
-  useEffect(() => {
-    let interval = null;
-
-    if (isActive && isPaused === false) {
-      interval = setInterval(() => {
-        setTime((time) => time + 10);
-      }, 10);
-    } else {
-      clearInterval(interval);
-    }
     return () => {
-      clearInterval(interval);
+      clearInterval(clock);
     };
-  }, [isActive, isPaused]);
-
-  const handleStart = () => {
-    setIsActive(true);
-    setIsPaused(false);
-  };
-
-  const handlePauseResume = () => {
-    setIsPaused(!isPaused);
-  };
-
-  const handleReset = () => {
-    setIsActive(false);
-    setTime(0);
-  };
-
-  //   useEffect(() => {
-  //     function handleKeyDown(e) {
-  //       let char;
-  //       // 16 - Shift Key
-  //       if (e.keyCode != 16 && e.keyCode != 20) {
-  //         if (e.shiftKey || e.getModifierState("CapsLock")) {
-  //           char = String.fromCharCode(e.keyCode).toUpperCase();
-  //         } else {
-  //           char = String.fromCharCode(e.keyCode).toLowerCase();
-  //         }
-  //         alert(char);
-  //       }
-  //     }
-
-  //     document.addEventListener("keydown", handleKeyDown);
-
-  //     // Don't forget to clean up
-  //     return function cleanup() {
-  //       document.removeEventListener("keydown", handleKeyDown);
-  //     };
-  //   }, []);
+  }, [timerState, time, mode]);
 
   return (
     <div className="container">
@@ -375,22 +295,15 @@ function Practice() {
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select>
-
         <button className="button" onClick={getSentence}>
           Set
         </button>
-
-        {!stepUpTimer && <p>{timer}</p>}
-        {stepUpTimer && (
-          <p>
-            <Timer time={time} />
-          </p>
-        )}
+        <div className="timer">{time}</div>
       </div>
 
       <p className="sentence">{textSpans}</p>
       <textarea
-        style={{ width: "0", height: "0" }}
+        style={{ width: "100", height: "100" }}
         className="textarea"
         value={typedWords}
         onChange={handleTypedWordsChange}
