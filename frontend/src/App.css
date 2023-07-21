@@ -14,7 +14,7 @@
 
 html,
 body {
-  margin: 0px 0px 0px 0px;
+  margin: 0px 0px 45px 0px;
   background-color: var(--dark-color);
   color: var(--light-color);
 }

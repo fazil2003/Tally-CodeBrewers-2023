@@ -3,8 +3,12 @@ import { useState, useEffect } from "react";
 import defaultVariables from "../variables";
 import Footer from "./footer";
 import ProgressBar from "./ProgressBar";
+import io from "socket.io-client";
 
-function Private() {
+function Private(props) {
+  const socket = io.connect(
+    defaultVariables.backendUrl + "/private/room/" + props.roomID
+  );
   const [mode, setMode] = useState("words");
   const [sentence, setSentence] = useState("");
   const [difficulty, setDifficulty] = useState("easy");
@@ -18,6 +22,30 @@ function Private() {
   const [time, setTime] = useState(0);
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
+  const [progressDivs, setProgressDivs] = useState([
+    <ProgressBar
+      name={localStorage.getItem("username")}
+      percentage={"0"}
+      inpercent={"0%"}
+    />,
+  ]);
+
+  socket.on("message", (message) => {
+    const { username, subject } = JSON.parse(message);
+    if (subject === "join") {
+      let response = {
+        username: localStorage.getItem("username"),
+        subject: "join",
+      };
+      socket.emit("message", JSON.stringify(response));
+      setProgressDivs((oldValue) => {
+        return [
+          ...oldValue,
+          <ProgressBar name={username} percentage={"0"} inpercent={"0%"} />,
+        ];
+      });
+    }
+  });
 
   function getMismatchPosition(word1, word2) {
     if (word1 === undefined || word2 === undefined) {
@@ -252,10 +280,6 @@ function Private() {
     };
   }, [timerState, time, mode]);
 
-  function testSocket(event) {
-    event.preventDefault();
-  }
-
   return (
     <div className="container">
       <div className="top-options">
@@ -317,11 +341,7 @@ function Private() {
         value={typedWords}
         onChange={handleTypedWordsChange}
       />
-      <form onSubmit={testSocket}>
-        <input type="text" placeholder="msg" />
-        <input type="submit" value="send" />
-      </form>
-      <ProgressBar name={"muthu"} percentage={"80"} inpercent={"80%"} />
+      {progressDivs}
       <Footer />
     </div>
   );
