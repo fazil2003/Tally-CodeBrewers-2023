@@ -1,33 +1,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
-:root{
-  --dark-color: #2C2D31;
-  --font-family: 'Montserrat', sans-serif;
+:root {
+	--dark-color: #2C2D31;
+	--light-color: #FFF;
+	--highlight-color: #FFE4B5;
+	--font-size: 18px;
+	--font-family: 'Montserrat', sans-serif;
 }
 
-html, body {
-  margin: 0px 0px 0px 0px;
-  background-color: var(--dark-color);
-  color: white;
-  font-family: var(--font-family);
+html,
+body {
+	margin: 0px 0px 0px 0px;
+	background-color: var(--dark-color);
+	color: var(--light-color);
 }
 
-.header{
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 50px;
-  position: fixed;
-  border-bottom: 1px solid rgb(200, 200, 200);
+html,
+select,
+input,
+textarea,
+button {
+	font-family: var(--font-family);
+	font-size: var(--font-size);
 }
 
-.header .title{
-  font-size: 30px;
-  font-weight: 700;
-  margin-top: 5px;
-  text-align: center;
+.header {
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 50px;
+	position: fixed;
+	border-bottom: 1px solid rgb(200, 200, 200);
 }
 
-.container{
-  margin-top: 70px;
+.header .title {
+	font-size: 30px;
+	font-weight: 700;
+	margin-top: 5px;
+	text-align: center;
+	color: var(--highlight-color);
+}
+
+.container {
+	margin-top: 70px;
+}
+
+.select {
+	background-color: var(--dark-color);
+	color: var(--light-color);
+	padding: 10px;
+	margin: 10px;
+	border: 2px solid var(--light-color);
+	border-radius: 10px;
+}
+
+.button{
+	background-color: var(--highlight-color);
+	color: var(--dark-color);
+	padding: 10px 30px 10px 30px;
+	margin: 10px;
+	border: 1px solid var(--highlight-color);
+	border-radius: 50px;
+	font-weight: 700;
+}
+
+.top-options{
+	display: flex;
+}
+
+.top-options .select, .top-options .button{
+	flex: 1;
 }

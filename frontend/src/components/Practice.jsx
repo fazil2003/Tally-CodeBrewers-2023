@@ -35,40 +35,45 @@ function Practice() {
 
 	return (
 		<div className="container">
-			<select value={mode} onChange={handleModeChange}>
-				<option value="words">Words</option>
-				<option value="timer">Time</option>
-			</select>
-			{mode === "timer" ? (
-				<select>
-					<option value="0.25">15 seconds</option>
-					<option value="0.5">30 seconds</option>
-					<option value="0.75">45 seconds</option>
-					<option value="1">1 minute</option>
-					<option value="2">2 minutes</option>
-					<option value="3">3 minutes</option>
-					<option value="5">5 minutes</option>
+
+			<div className='top-options'>
+
+				<select className="select" value={mode} onChange={handleModeChange}>
+					<option value="words">Words</option>
+					<option value="timer">Time</option>
 				</select>
-			) : (
-				<select value={practiceWords} onChange={handlePracticeWordsChange}>
-					<option value="10">10 words</option>
-					<option value="30">30 words</option>
-					<option value="50">50 words</option>
-					<option value="75">75 words</option>
-					<option value="100">100 words</option>
-					<option value="150">150 words</option>
-					<option value="200">200 words</option>
+				{mode === "timer" ? (
+					<select className="select">
+						<option value="0.25">15 seconds</option>
+						<option value="0.5">30 seconds</option>
+						<option value="0.75">45 seconds</option>
+						<option value="1">1 minute</option>
+						<option value="2">2 minutes</option>
+						<option value="3">3 minutes</option>
+						<option value="5">5 minutes</option>
+					</select>
+				) : (
+					<select className="select" value={practiceWords} onChange={handlePracticeWordsChange}>
+						<option value="10">10 words</option>
+						<option value="30">30 words</option>
+						<option value="50">50 words</option>
+						<option value="75">75 words</option>
+						<option value="100">100 words</option>
+						<option value="150">150 words</option>
+						<option value="200">200 words</option>
+					</select>
+				)}
+				<select className="select" value={difficulty} onChange={handleDifficultyChange}>
+					<option value="easy">Easy</option>
+					<option value="medium">Medium</option>
+					<option value="hard">Hard</option>
 				</select>
-			)}
-			<select value={difficulty} onChange={handleDifficultyChange}>
-				<option value="easy">Easy</option>
-				<option value="medium">Medium</option>
-				<option value="hard">Hard</option>
-			</select>
-			<br />
-			<button onClick={getSentence}>Set</button>
+
+				<button className='button' onClick={getSentence}>Set</button>
+
+			</div>
+			
 			<p>{sentence}</p>
-			<br />
 			<textarea>{typedWords}</textarea>
 		</div>
 	);
