@@ -62,7 +62,12 @@ function Practice() {
   }
 
   function handleTypedWordsChange(event) {
-    if (words.length === 0 || wordPointer === words.length) {
+    if (
+      words.length === 0 ||
+      wordPointer === words.length ||
+      (event.target.value.length > typedWords.length &&
+        event.target.value.trimStart().length === 0)
+    ) {
       setTypedWords("");
     } else {
       let typedWordsArray = event.target.value.split(" ");
@@ -82,7 +87,7 @@ function Practice() {
         }
 
         setWordPointer(i);
-        setTypedWords(typedWordsArray.join(" "));
+        setTypedWords(typedWordsArray.join(" ").trimStart());
 
         let completedCharacters = 0;
 
@@ -116,7 +121,7 @@ function Practice() {
           </>
         );
       } else {
-        setTypedWords(event.target.value);
+        setTypedWords(event.target.value.trimStart());
 
         let completedCharacters = 0;
 
@@ -154,8 +159,8 @@ function Practice() {
   }
 
   useEffect(() => {
-	getSentence();
-	document.getElementsByClassName('textarea')[0].focus();
+    getSentence();
+    document.getElementsByClassName("textarea")[0].focus();
   }, []);
 
   //   useEffect(() => {
@@ -228,7 +233,12 @@ function Practice() {
       </div>
 
       <p className="sentence">{textSpans}</p>
-      <textarea style={{ width: '0', height: '0'}} className='textarea' value={typedWords} onChange={handleTypedWordsChange} />
+      <textarea
+        style={{ width: "0", height: "0" }}
+        className="textarea"
+        value={typedWords}
+        onChange={handleTypedWordsChange}
+      />
     </div>
   );
 }
