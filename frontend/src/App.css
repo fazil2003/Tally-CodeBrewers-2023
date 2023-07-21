@@ -94,8 +94,10 @@ button {
   font-size: 26px;
   letter-spacing: 2px;
   color: rgb(220, 220, 200);
-  height: 200px;
-  overflow-y: scroll;
+  line-height: 1.5em;
+  height: 3em;       
+  overflow: hidden;
+  /* overflow-y: scroll; */
 }
 
 .pending-characters {
