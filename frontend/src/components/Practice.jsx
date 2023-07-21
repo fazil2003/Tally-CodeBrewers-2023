@@ -16,32 +16,35 @@ function Practice() {
 	const [mistakes, setMistakes] = useState(0);
   const [stepUpTimer, setStepUpTimer] = useState(true);
 
-	function getMismatchPosition(word1, word2) {
-		let i = 0;
-		let j = 0;
-
-		while (i < word1.length && j < word2.length && word1[i] === word2[j]) {
-			++i;
-			++j;
-		}
-
-		return i;
-	}
-
-	function handlePracticeWordsChange(event) {
-		setPracticeWords(event.target.value);
-	}
-
-	function handlePracticeTimeChange(event) {
-		setPracticeTime(event.target.value);
-		clearTimer(getDeadTime(parseInt(event.target.value)));
-	}
-
-	function handleModeChange(event) {
-    if (event.target.value == "timer"){
-      setStepUpTimer(false);
+  function getMismatchPosition(word1, word2) {
+    if (word1 === undefined || word2 === undefined) {
+      return 0;
     }
-    else{
+
+    let i = 0;
+    let j = 0;
+
+    while (i < word1.length && j < word2.length && word1[i] === word2[j]) {
+      ++i;
+      ++j;
+    }
+
+    return i;
+  }
+
+  function handlePracticeWordsChange(event) {
+    setPracticeWords(event.target.value);
+  }
+
+  function handlePracticeTimeChange(event) {
+    setPracticeTime(event.target.value);
+    clearTimer(getDeadTime(parseInt(event.target.value)));
+  }
+
+  function handleModeChange(event) {
+    if (event.target.value == "timer") {
+      setStepUpTimer(false);
+    } else {
       setStepUpTimer(true);
     }
     // start the step up timer.
@@ -51,9 +54,9 @@ function Practice() {
 		setMode(event.target.value);
 	}
 
-	function handleDifficultyChange(event) {
-		setDifficulty(event.target.value);
-	}
+  function handleDifficultyChange(event) {
+    setDifficulty(event.target.value);
+  }
 
   function getSentence(){
     document.getElementById("footer").style.visibility = "hidden";
@@ -70,208 +73,215 @@ function Practice() {
 
 	function getSentenceInitially() {
 
-		const practiceUrl =
-			mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
-		axios
-			.post(`${defaultVariables.backendUrl}/practice/${practiceUrl}`, {
-				wordCount: parseInt(practiceWords),
-			})
-			.then((response) => {
-				setSentence(response.data.sentence);
-				setTextSpans(
-					<>
-						<span className="pending-characters current-character">
-							{response.data.sentence[0]}
-						</span>
-						<span className="pending-characters">
-							{response.data.sentence.slice(1)}
-						</span>
-					</>
-				);
-				setTypedWords("");
-				setWords(response.data.sentence.split(" "));
-				setWordPointer(0);
-			});
-	}
+    const practiceUrl =
+      mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
+    axios
+      .post(`${defaultVariables.backendUrl}/practice/${practiceUrl}`, {
+        wordCount: parseInt(practiceWords),
+      })
+      .then((response) => {
+        setSentence(response.data.sentence);
+        setTextSpans(
+          <>
+            <span className="pending-characters current-character">
+              {response.data.sentence[0]}
+            </span>
+            <span className="pending-characters">
+              {response.data.sentence.slice(1)}
+            </span>
+          </>
+        );
+        setTypedWords("");
+        setWords(response.data.sentence.split(" "));
+        setWordPointer(0);
+      });
+  }
 
-	function handleTypedWordsChange(event) {
-		if (
-			words.length === 0 ||
-			wordPointer === words.length ||
-			(event.target.value.length > typedWords.length &&
-				event.target.value.trimStart().length === 0)
-		) {
-			setTypedWords("");
-		} else {
-			let typedWordsArray = event.target.value.split(" ");
-			if (
-				typedWordsArray[0] === words[wordPointer] &&
-				typedWordsArray.length !== 1
-			) {
-				let i = wordPointer;
+  function handleTypedWordsChange(event) {
+    if (
+      words.length === 0 ||
+      wordPointer === words.length ||
+      (event.target.value.length > typedWords.length &&
+        event.target.value.trimStart().length === 0)
+    ) {
+      setTypedWords("");
+    } else {
+      let typedWordsArray = event.target.value.split(" ");
+      if (
+        typedWordsArray[0] === words[wordPointer] &&
+        typedWordsArray.length !== 1
+      ) {
+        let i = wordPointer;
 
-				while (
-					i < words.length &&
-					typedWordsArray[0] === words[i] &&
-					typedWordsArray.length !== 1
-				) {
-					typedWordsArray.shift();
-					while (typedWordsArray[0] === "") {
-						typedWordsArray.shift();
-					}
-					++i;
-				}
+        while (
+          i < words.length &&
+          typedWordsArray[0] === words[i] &&
+          typedWordsArray.length !== 1
+        ) {
+          typedWordsArray.shift();
+          while (typedWordsArray[0] === "") {
+            typedWordsArray.shift();
+          }
+          ++i;
+        }
 
-				setWordPointer(i);
-				setTypedWords(typedWordsArray.join(" ").trimStart());
+        setWordPointer(i);
 
-				let completedCharacters = 0;
+        if (i === words.length) {
+          // if i === sentence.length => then the typing is completed
 
-				for (let j = 0; j < i; ++j) {
-					completedCharacters += words[j].length + 1;
-				}
+          setTypedWords("");
+        } else {
+          setTypedWords(typedWordsArray.join(" ").trimStart());
+        }
 
-				const mismatchPosition = getMismatchPosition(
-					typedWordsArray.join(" "),
-					words[i]
-				);
-				completedCharacters += mismatchPosition;
+        let completedCharacters = 0;
 
-				let pointerClass = "pending-characters current-character";
+        for (let j = 0; j < i; ++j) {
+          completedCharacters += words[j].length + 1;
+        }
 
-				if (mismatchPosition !== typedWordsArray.join(" ").length) {
-					pointerClass = "mismatch";
-				}
+        const mismatchPosition = getMismatchPosition(
+          typedWordsArray.join(" "),
+          words[i]
+        );
+        completedCharacters += mismatchPosition;
 
-				setTextSpans(
-					<>
-						<span className="completed-characters">
-							{sentence.slice(0, completedCharacters)}
-						</span>
-						<span className={pointerClass}>
-							{sentence[completedCharacters]}
-						</span>
-						<span className="pending-characters">
-							{sentence.slice(completedCharacters + 1)}
-						</span>
-					</>
-				);
-			} else {
-				if (typedWords.length < event.target.value.length) {
-					let currentIndex = 0;
+        let pointerClass = "pending-characters current-character";
 
-					for (let i = 0; i < wordPointer; ++i) {
-						currentIndex += words[i].length + 1;
-					}
+        if (mismatchPosition !== typedWordsArray.join(" ").length) {
+          pointerClass = "mismatch";
+        }
 
-					currentIndex += event.target.value.length - 1;
+        setTextSpans(
+          <>
+            <span className="completed-characters">
+              {sentence.slice(0, completedCharacters)}
+            </span>
+            <span className={pointerClass}>
+              {sentence[completedCharacters]}
+            </span>
+            <span className="pending-characters">
+              {sentence.slice(completedCharacters + 1)}
+            </span>
+          </>
+        );
+      } else {
+        if (typedWords.length < event.target.value.length) {
+          let currentIndex = 0;
 
-					if (currentIndex >= sentence.length) {
-						setMistakes((oldValue) => {
-							return oldValue + 1;
-						});
-					} else if (
-						sentence[currentIndex] !==
-						event.target.value[event.target.value.length - 1]
-					) {
-						setMistakes((oldValue) => {
-							return oldValue + 1;
-						});
-					}
-				}
+          for (let i = 0; i < wordPointer; ++i) {
+            currentIndex += words[i].length + 1;
+          }
 
-				setTypedWords(event.target.value.trimStart());
+          currentIndex += event.target.value.length - 1;
 
-				let completedCharacters = 0;
+          if (currentIndex >= sentence.length) {
+            setMistakes((oldValue) => {
+              return oldValue + 1;
+            });
+          } else if (
+            sentence[currentIndex] !==
+            event.target.value[event.target.value.length - 1]
+          ) {
+            setMistakes((oldValue) => {
+              return oldValue + 1;
+            });
+          }
+        }
 
-				for (let i = 0; i < wordPointer; ++i) {
-					completedCharacters += words[i].length + 1;
-				}
+        setTypedWords(event.target.value.trimStart());
 
-				const mismatchPosition = getMismatchPosition(
-					event.target.value,
-					words[wordPointer]
-				);
-				completedCharacters += mismatchPosition;
+        let completedCharacters = 0;
 
-				let pointerClass = "pending-characters current-character";
+        for (let i = 0; i < wordPointer; ++i) {
+          completedCharacters += words[i].length + 1;
+        }
 
-				if (mismatchPosition !== event.target.value.length) {
-					pointerClass = "mismatch";
-				}
+        const mismatchPosition = getMismatchPosition(
+          event.target.value,
+          words[wordPointer]
+        );
+        completedCharacters += mismatchPosition;
 
-				setTextSpans(
-					<>
-						<span className="completed-characters">
-							{sentence.slice(0, completedCharacters)}
-						</span>
-						<span className={pointerClass}>
-							{sentence[completedCharacters]}
-						</span>
-						<span className="pending-characters">
-							{sentence.slice(completedCharacters + 1)}
-						</span>
-					</>
-				);
-			}
-		}
-	}
+        let pointerClass = "pending-characters current-character";
+
+        if (mismatchPosition !== event.target.value.length) {
+          pointerClass = "mismatch";
+        }
+
+        setTextSpans(
+          <>
+            <span className="completed-characters">
+              {sentence.slice(0, completedCharacters)}
+            </span>
+            <span className={pointerClass}>
+              {sentence[completedCharacters]}
+            </span>
+            <span className="pending-characters">
+              {sentence.slice(completedCharacters + 1)}
+            </span>
+          </>
+        );
+      }
+    }
+  }
 
 	// timer
 	useEffect(() => {
 		getSentenceInitially();
 	}, []);
 
-	const Ref = useRef(null);
+  const Ref = useRef(null);
 
-	// The state for our timer
-	const [timer, setTimer] = useState("00:00:00");
+  // The state for our timer
+  const [timer, setTimer] = useState("00:00:00");
 
-	const getTimeRemaining = (e) => {
-		const total = Date.parse(e) - Date.parse(new Date());
-		const seconds = Math.floor((total / 1000) % 60);
-		const minutes = Math.floor((total / 1000 / 60) % 60);
-		const hours = Math.floor((total / 1000 / 60 / 60) % 24);
-		if (seconds == 0) {
-			// Disable the textarea
-			document.getElementsByClassName("textarea")[0].disabled = true;
-			document.getElementById("footer").style.visibility = "visible";
-		}
-		return {
-			total,
-			hours,
-			minutes,
-			seconds,
-		};
-	};
+  const getTimeRemaining = (e) => {
+    const total = Date.parse(e) - Date.parse(new Date());
+    const seconds = Math.floor((total / 1000) % 60);
+    const minutes = Math.floor((total / 1000 / 60) % 60);
+    const hours = Math.floor((total / 1000 / 60 / 60) % 24);
+    if (seconds == 0) {
+      // Disable the textarea
+      document.getElementsByClassName("textarea")[0].disabled = true;
+      document.getElementById("footer").style.visibility = "visible";
+    }
+    return {
+      total,
+      hours,
+      minutes,
+      seconds,
+    };
+  };
 
-	const startTimer = (e) => {
-		let { total, hours, minutes, seconds } = getTimeRemaining(e);
-		if (total >= 0) {
-			setTimer(
-				(hours > 9 ? hours : "0" + hours) +
-				":" +
-				(minutes > 9 ? minutes : "0" + minutes) +
-				":" +
-				(seconds > 9 ? seconds : "0" + seconds)
-			);
-		}
-	};
+  const startTimer = (e) => {
+    let { total, hours, minutes, seconds } = getTimeRemaining(e);
+    if (total >= 0) {
+      setTimer(
+        (hours > 9 ? hours : "0" + hours) +
+          ":" +
+          (minutes > 9 ? minutes : "0" + minutes) +
+          ":" +
+          (seconds > 9 ? seconds : "0" + seconds)
+      );
+    }
+  };
 
-	const clearTimer = (e) => {
-		setTimer("00:00:00");
-		if (Ref.current) clearInterval(Ref.current);
-		const id = setInterval(() => {
-			startTimer(e);
-		}, 1000);
-		Ref.current = id;
-	};
+  const clearTimer = (e) => {
+    setTimer("00:00:00");
+    if (Ref.current) clearInterval(Ref.current);
+    const id = setInterval(() => {
+      startTimer(e);
+    }, 1000);
+    Ref.current = id;
+  };
 
-	const getDeadTime = (time) => {
-		let deadline = new Date();
-		deadline.setSeconds(deadline.getSeconds() + time);
-		return deadline;
-	};
+  const getDeadTime = (time) => {
+    let deadline = new Date();
+    deadline.setSeconds(deadline.getSeconds() + time);
+    return deadline;
+  };
 
 	useEffect(() => {
 		clearTimer(getDeadTime(0));
@@ -281,126 +291,129 @@ function Practice() {
 		clearTimer(getDeadTime(0));
 	};
 
-	// Count Up Timer
-	const [isActive, setIsActive] = useState(false);
-	const [isPaused, setIsPaused] = useState(true);
-	const [time, setTime] = useState(0);
+  // Count Up Timer
+  const [isActive, setIsActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
+  const [time, setTime] = useState(0);
 
-	useEffect(() => {
-		let interval = null;
+  useEffect(() => {
+    let interval = null;
 
-		if (isActive && isPaused === false) {
-			interval = setInterval(() => {
-				setTime((time) => time + 10);
-			}, 10);
-		} else {
-			clearInterval(interval);
-		}
-		return () => {
-			clearInterval(interval);
-		};
-	}, [isActive, isPaused]);
+    if (isActive && isPaused === false) {
+      interval = setInterval(() => {
+        setTime((time) => time + 10);
+      }, 10);
+    } else {
+      clearInterval(interval);
+    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isActive, isPaused]);
 
-	const handleStart = () => {
-		setIsActive(true);
-		setIsPaused(false);
-	};
+  const handleStart = () => {
+    setIsActive(true);
+    setIsPaused(false);
+  };
 
-	const handlePauseResume = () => {
-		setIsPaused(!isPaused);
-	};
+  const handlePauseResume = () => {
+    setIsPaused(!isPaused);
+  };
 
-	const handleReset = () => {
-		setIsActive(false);
-		setTime(0);
-	};
+  const handleReset = () => {
+    setIsActive(false);
+    setTime(0);
+  };
 
-	//   useEffect(() => {
-	//     function handleKeyDown(e) {
-	//       let char;
-	//       // 16 - Shift Key
-	//       if (e.keyCode != 16 && e.keyCode != 20) {
-	//         if (e.shiftKey || e.getModifierState("CapsLock")) {
-	//           char = String.fromCharCode(e.keyCode).toUpperCase();
-	//         } else {
-	//           char = String.fromCharCode(e.keyCode).toLowerCase();
-	//         }
-	//         alert(char);
-	//       }
-	//     }
+  //   useEffect(() => {
+  //     function handleKeyDown(e) {
+  //       let char;
+  //       // 16 - Shift Key
+  //       if (e.keyCode != 16 && e.keyCode != 20) {
+  //         if (e.shiftKey || e.getModifierState("CapsLock")) {
+  //           char = String.fromCharCode(e.keyCode).toUpperCase();
+  //         } else {
+  //           char = String.fromCharCode(e.keyCode).toLowerCase();
+  //         }
+  //         alert(char);
+  //       }
+  //     }
 
-	//     document.addEventListener("keydown", handleKeyDown);
+  //     document.addEventListener("keydown", handleKeyDown);
 
-	//     // Don't forget to clean up
-	//     return function cleanup() {
-	//       document.removeEventListener("keydown", handleKeyDown);
-	//     };
-	//   }, []);
+  //     // Don't forget to clean up
+  //     return function cleanup() {
+  //       document.removeEventListener("keydown", handleKeyDown);
+  //     };
+  //   }, []);
 
-	return (
-		<div className="container">
-			<div className="top-options">
-				<select className="select" value={mode} onChange={handleModeChange}>
-					<option value="words">Words</option>
-					<option value="timer">Time</option>
-				</select>
-				{mode === "timer" ? (
-					<select
-						className="select"
-						value={practiceTime}
-						onChange={handlePracticeTimeChange}
-					>
-						<option value="15">15 seconds</option>
-						<option value="30">30 seconds</option>
-						<option value="45">45 seconds</option>
-						<option value="60">1 minute</option>
-						<option value="120">2 minutes</option>
-						<option value="180">3 minutes</option>
-						<option value="300">5 minutes</option>
-					</select>
-				) : (
-					<select
-						className="select"
-						value={practiceWords}
-						onChange={handlePracticeWordsChange}
-					>
-						<option value="10">10 words</option>
-						<option value="30">30 words</option>
-						<option value="50">50 words</option>
-						<option value="75">75 words</option>
-						<option value="100">100 words</option>
-						<option value="150">150 words</option>
-						<option value="200">200 words</option>
-					</select>
-				)}
-				<select
-					className="select"
-					value={difficulty}
-					onChange={handleDifficultyChange}
-				>
-					<option value="easy">Easy</option>
-					<option value="medium">Medium</option>
-					<option value="hard">Hard</option>
-				</select>
+  return (
+    <div className="container">
+      <div className="top-options">
+        <select className="select" value={mode} onChange={handleModeChange}>
+          <option value="words">Words</option>
+          <option value="timer">Time</option>
+        </select>
+        {mode === "timer" ? (
+          <select
+            className="select"
+            value={practiceTime}
+            onChange={handlePracticeTimeChange}
+          >
+            <option value="15">15 seconds</option>
+            <option value="30">30 seconds</option>
+            <option value="45">45 seconds</option>
+            <option value="60">1 minute</option>
+            <option value="120">2 minutes</option>
+            <option value="180">3 minutes</option>
+            <option value="300">5 minutes</option>
+          </select>
+        ) : (
+          <select
+            className="select"
+            value={practiceWords}
+            onChange={handlePracticeWordsChange}
+          >
+            <option value="10">10 words</option>
+            <option value="30">30 words</option>
+            <option value="50">50 words</option>
+            <option value="75">75 words</option>
+            <option value="100">100 words</option>
+            <option value="150">150 words</option>
+            <option value="200">200 words</option>
+          </select>
+        )}
+        <select
+          className="select"
+          value={difficulty}
+          onChange={handleDifficultyChange}
+        >
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
 
-				<button className="button" onClick={getSentence}>
-					Set
-				</button>
+        <button className="button" onClick={getSentence}>
+          Set
+        </button>
 
-        { !stepUpTimer && <p>{timer}</p> }
-				{ stepUpTimer && <p><Timer time={time} /></p>}
+        {!stepUpTimer && <p>{timer}</p>}
+        {stepUpTimer && (
+          <p>
+            <Timer time={time} />
+          </p>
+        )}
+      </div>
 
-			</div>
-
-			<p className="sentence">{textSpans}</p>
-			<textarea
-				style={{ width: "0", height: "0" }}
-				className="textarea"
-				value={typedWords}
-				onChange={handleTypedWordsChange}
-			/>
-		</div>
-	);
+      <p className="sentence">{textSpans}</p>
+      <textarea
+        style={{ width: "0", height: "0" }}
+        className="textarea"
+        value={typedWords}
+        onChange={handleTypedWordsChange}
+      />
+    </div>
+  );
 }
 
 export default Practice;
