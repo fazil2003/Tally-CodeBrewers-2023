@@ -90,17 +90,24 @@ function Practice() {
           completedCharacters += words[j].length + 1;
         }
 
-        completedCharacters += getMismatchPosition(
+        const mismatchPosition = getMismatchPosition(
           typedWordsArray.join(" "),
           words[i]
         );
+        completedCharacters += mismatchPosition;
+
+        let pointerClass = "pending-characters current-character";
+
+        if (mismatchPosition !== typedWordsArray.join(" ").length) {
+          pointerClass = "mismatch";
+        }
 
         setTextSpans(
           <>
             <span className="completed-characters">
               {sentence.slice(0, completedCharacters)}
             </span>
-            <span className="pending-characters current-character">
+            <span className={pointerClass}>
               {sentence[completedCharacters]}
             </span>
             <span className="pending-characters">
@@ -117,17 +124,24 @@ function Practice() {
           completedCharacters += words[i].length + 1;
         }
 
-        completedCharacters += getMismatchPosition(
+        const mismatchPosition = getMismatchPosition(
           event.target.value,
           words[wordPointer]
         );
+        completedCharacters += mismatchPosition;
+
+        let pointerClass = "pending-characters current-character";
+
+        if (mismatchPosition !== event.target.value.length) {
+          pointerClass = "mismatch";
+        }
 
         setTextSpans(
           <>
             <span className="completed-characters">
               {sentence.slice(0, completedCharacters)}
             </span>
-            <span className="pending-characters current-character">
+            <span className={pointerClass}>
               {sentence[completedCharacters]}
             </span>
             <span className="pending-characters">
