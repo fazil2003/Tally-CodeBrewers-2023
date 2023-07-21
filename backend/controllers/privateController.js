@@ -28,4 +28,20 @@ const createRoom = asyncHandler(async (req, res) => {
   res.status(201).json(room);
 });
 
-module.exports = { createRoom };
+const joinRoom = asyncHandler(async (req, res) => {
+  const { roomID, password, name } = req.body;
+
+  const room = await Room.findOne({
+    roomID: roomID,
+    password: password,
+  });
+
+  if (room) {
+    res.status(200).json({ success: true, room: room });
+  } else {
+    res.status(401);
+    throw new Error("Invalid room credentials");
+  }
+});
+
+module.exports = { createRoom, joinRoom };
