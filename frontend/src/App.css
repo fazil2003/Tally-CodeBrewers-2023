@@ -228,3 +228,35 @@ textarea {
   cursor: pointer;
   font-size: 14px;
 }
+
+.progressbar{
+  margin: 10px;
+  padding: 10px;
+  width: 50%;
+  background: var(--highlight-color);
+  color: var(--dark-color);
+  border-radius: 10px;
+  display: flex;
+}
+
+.progressbar p, .progressbar .progress{
+  flex: 1;
+}
+
+.progressbar p{
+  text-align: center;
+}
+
+.progressbar .progress{
+  margin-top: 12.5px;
+  width: 250px;
+  height: 30px;
+  border-radius: 30px;
+  background-color: #FFF;
+}
+
+.progressbar .progress .fill{
+  height: 100%;
+  border-radius: 30px;
+  background-color: #1E90FF;
+}

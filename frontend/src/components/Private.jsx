@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import defaultVariables from "../variables";
 import Footer from "./footer";
+import ProgressBar from "./ProgressBar";
 
 function Private() {
   const [mode, setMode] = useState("words");
@@ -320,6 +321,7 @@ function Private() {
         <input type="text" placeholder="msg" />
         <input type="submit" value="send" />
       </form>
+      <ProgressBar name={"muthu"} percentage={"80"} inpercent={"80%"} />
       <Footer />
     </div>
   );
