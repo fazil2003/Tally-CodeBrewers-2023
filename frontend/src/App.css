@@ -22,6 +22,7 @@ textarea,
 button {
 	font-family: var(--font-family);
 	font-size: var(--font-size);
+	outline: none;
 }
 
 .header {
@@ -71,4 +72,13 @@ button {
 
 .top-options .select, .top-options .button{
 	flex: 1;
+}
+
+.sentence{
+	padding: 0px 50px 0px 50px;
+	font-family: 'Courier New', Courier, monospace;
+	font-weight: 700;
+	font-size: 26px;
+	letter-spacing: 2px;
+	color: rgb(220, 220, 200);
 }

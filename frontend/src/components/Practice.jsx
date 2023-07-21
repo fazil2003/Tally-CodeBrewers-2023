@@ -73,8 +73,8 @@ function Practice() {
 
 			</div>
 			
-			<p>{sentence}</p>
-			<textarea>{typedWords}</textarea>
+			<p className='sentence'>{sentence}</p>
+			
 		</div>
 	);
 }
