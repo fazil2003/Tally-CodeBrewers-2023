@@ -153,6 +153,11 @@ function Practice() {
     }
   }
 
+  useEffect(() => {
+	getSentence();
+	document.getElementsByClassName('textarea')[0].focus();
+  }, []);
+
   //   useEffect(() => {
   //     function handleKeyDown(e) {
   //       let char;
@@ -223,7 +228,7 @@ function Practice() {
       </div>
 
       <p className="sentence">{textSpans}</p>
-      <textarea value={typedWords} onChange={handleTypedWordsChange} />
+      <textarea style={{ width: '0', height: '0'}} className='textarea' value={typedWords} onChange={handleTypedWordsChange} />
     </div>
   );
 }
