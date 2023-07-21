@@ -38,22 +38,31 @@ function Practice() {
   }
 
   function handleTypedWordsChange(event) {
-    setTypedWords((oldValue) => {
-      if (words.length === 0) {
-        return "";
-      }
+    if (words.length === 0 || wordPointer === words.length) {
+      setTypedWords("");
+    } else {
       let typedWordsArray = event.target.value.split(" ");
       if (
         typedWordsArray[0] === words[wordPointer] &&
         typedWordsArray.length !== 1
       ) {
-        typedWordsArray.shift();
-        setWordPointer((oldValue) => oldValue + 0.5);
-        return typedWordsArray.join(" ");
+        let i = wordPointer;
+        let j = 0;
+        while (
+          i < words.length &&
+          typedWordsArray[j] === words[i] &&
+          typedWordsArray.length - j !== 1
+        ) {
+          typedWordsArray.shift();
+          ++i;
+          ++j;
+        }
+        setWordPointer((oldValue) => oldValue + j);
+        setTypedWords(typedWordsArray.join(" "));
       } else {
-        return event.target.value;
+        setTypedWords(event.target.value);
       }
-    });
+    }
   }
 
   //   useEffect(() => {
