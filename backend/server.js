@@ -22,7 +22,7 @@ app.use(errorHandler);
 
 const start = async () => {
   try {
-    // await dbConnect();
+    await dbConnect();
     app.listen(port, () => {
       console.log(`Server is listening on port ${port}...`);
     });

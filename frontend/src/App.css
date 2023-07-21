@@ -154,3 +154,77 @@ textarea {
   justify-content: center;
   align-items: center;
 }
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-self: center;
+  margin-top: 39vh;
+}
+
+.login-input {
+  margin: 6px;
+  background-color: var(--highlight-color);
+  height: 35px;
+  width: 300px;
+  padding-left: 10px;
+  border-radius: 6px;
+  font-size: 15px;
+  border: 2px rgb(107, 103, 103) solid;
+}
+
+.login-btn {
+  margin: 10px;
+  width: 315px;
+  border-radius: 6px;
+  height: 35px;
+  background-color: var(--pending-color);
+  color: white;
+  border: 1px black solid;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 17px;
+}
+
+.register-text {
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-self: center;
+  margin-top: 39vh;
+}
+
+.register-input {
+  background-color: var(--highlight-color);
+  margin: 6px;
+  height: 35px;
+  width: 300px;
+  padding-left: 10px;
+  border-radius: 6px;
+  font-size: 15px;
+  border: 2px rgb(107, 103, 103) solid;
+}
+
+.register-btn {
+  margin: 10px;
+  width: 315px;
+  border-radius: 6px;
+  height: 35px;
+  background-color: var(--pending-color);
+  color: white;
+  border: 1px black solid;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 17px;
+}
+
+.login-text {
+  cursor: pointer;
+  font-size: 14px;
+}
