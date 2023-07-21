@@ -34,6 +34,7 @@ function Practice() {
         setSentence(response.data.sentence);
         setTypedWords("");
         setWords(response.data.sentence.split(" "));
+        setWordPointer(0);
       });
   }
 
@@ -47,17 +48,15 @@ function Practice() {
         typedWordsArray.length !== 1
       ) {
         let i = wordPointer;
-        let j = 0;
         while (
           i < words.length &&
-          typedWordsArray[j] === words[i] &&
-          typedWordsArray.length - j !== 1
+          typedWordsArray[0] === words[i] &&
+          typedWordsArray.length !== 1
         ) {
           typedWordsArray.shift();
           ++i;
-          ++j;
         }
-        setWordPointer((oldValue) => oldValue + j);
+        setWordPointer(i);
         setTypedWords(typedWordsArray.join(" "));
       } else {
         setTypedWords(event.target.value);
