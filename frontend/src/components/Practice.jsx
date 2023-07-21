@@ -14,7 +14,7 @@ function Practice() {
 	const [wordPointer, setWordPointer] = useState(0);
 	const [textSpans, setTextSpans] = useState(<></>);
 	const [mistakes, setMistakes] = useState(0);
-  const [stepUpTimer, setStepUpTimer] = useState(false);
+  const [stepUpTimer, setStepUpTimer] = useState(true);
 
 	function getMismatchPosition(word1, word2) {
 		let i = 0;
@@ -44,6 +44,10 @@ function Practice() {
     else{
       setStepUpTimer(true);
     }
+    // start the step up timer.
+    handleReset();
+    // start the step down timer.
+    clearTimer(getDeadTime(0));
 		setMode(event.target.value);
 	}
 
@@ -51,14 +55,20 @@ function Practice() {
 		setDifficulty(event.target.value);
 	}
 
-	function getSentence() {
-		document.getElementById("footer").style.visibility = "hidden";
+  function getSentence(){
+    document.getElementById("footer").style.visibility = "hidden";
 		// enable the textarea.
 		document.getElementsByClassName("textarea")[0].disabled = false;
 		document.getElementsByClassName("textarea")[0].focus();
     // start the step up timer.
     handleReset();
     handleStart();
+    // start the step down timer.
+    clearTimer(getDeadTime(practiceTime));
+    getSentence();
+  }
+
+	function getSentenceInitially() {
 
 		const practiceUrl =
 			mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
@@ -209,7 +219,7 @@ function Practice() {
 
 	// timer
 	useEffect(() => {
-		getSentence();
+		getSentenceInitially();
 	}, []);
 
 	const Ref = useRef(null);
@@ -264,11 +274,11 @@ function Practice() {
 	};
 
 	useEffect(() => {
-		clearTimer(getDeadTime(3));
+		clearTimer(getDeadTime(0));
 	}, []);
 
 	const onClickReset = () => {
-		clearTimer(getDeadTime(3));
+		clearTimer(getDeadTime(0));
 	};
 
 	// Count Up Timer
