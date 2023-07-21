@@ -14,6 +14,7 @@ function Practice() {
 	const [wordPointer, setWordPointer] = useState(0);
 	const [textSpans, setTextSpans] = useState(<></>);
 	const [mistakes, setMistakes] = useState(0);
+  const [stepUpTimer, setStepUpTimer] = useState(false);
 
 	function getMismatchPosition(word1, word2) {
 		let i = 0;
@@ -37,6 +38,12 @@ function Practice() {
 	}
 
 	function handleModeChange(event) {
+    if (event.target.value == "timer"){
+      setStepUpTimer(false);
+    }
+    else{
+      setStepUpTimer(true);
+    }
 		setMode(event.target.value);
 	}
 
@@ -49,6 +56,10 @@ function Practice() {
 		// enable the textarea.
 		document.getElementsByClassName("textarea")[0].disabled = false;
 		document.getElementsByClassName("textarea")[0].focus();
+    // start the step up timer.
+    handleReset();
+    handleStart();
+
 		const practiceUrl =
 			mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
 		axios
@@ -199,7 +210,6 @@ function Practice() {
 	// timer
 	useEffect(() => {
 		getSentence();
-		// handleStart();
 	}, []);
 
 	const Ref = useRef(null);
@@ -367,9 +377,8 @@ function Practice() {
 					Set
 				</button>
 
-				<p>{timer}</p>
-
-				<p><Timer time={time} /></p>
+        { !stepUpTimer && <p>{timer}</p> }
+				{ stepUpTimer && <p><Timer time={time} /></p>}
 
 			</div>
 
