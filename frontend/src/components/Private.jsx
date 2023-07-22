@@ -31,7 +31,6 @@ const Toast = () => {
 };
 
 const socket = io.connect(
-  // defaultVariables.backendUrl + "/private/room/" + roomID
   "http://localhost:5010"
 );
 
@@ -67,7 +66,7 @@ function Private() {
       }),
     ])
   );
-  
+
   const [characterCount, setCharacterCount] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
 
@@ -198,7 +197,7 @@ function Private() {
   }
 
   function getSentence() {
-    // document.getElementById("textarea").focus();
+    document.getElementById("textarea").focus();
     setCountdown(true);
 
     setTimeout(() => {
@@ -515,13 +514,15 @@ function Private() {
       <p id="some" className="sentence">
         {textSpans}
       </p>
-      <textarea
-        id="textarea"
-        style={{ width: "100", height: "100" }}
-        className="textarea"
-        value={typedWords}
-        onChange={handleTypedWordsChange}
-      />
+      <div className="typing">
+        <input
+          id="textarea"
+          type="text"
+          className="textarea"
+          value={typedWords}
+          onChange={handleTypedWordsChange}
+        />
+      </div>
       {[...progressDivs].map((val) => {
         val = JSON.parse(val);
         return (

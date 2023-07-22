@@ -22,7 +22,6 @@ body {
 html,
 select,
 input,
-textarea,
 button {
   font-family: var(--font-family);
   font-size: var(--font-size);
@@ -119,12 +118,22 @@ button {
   text-decoration-color: var(--mismatch-color);
 }
 
-textarea {
-  background: var(--dark-color);
-  /* width: 0;
-  height: 0; */
+.textarea {
+  background: var(--underline-color);
   border: none;
   outline: none;
+  height: 40px;
+  width: 60%;
+  padding-left: 10px;
+  border-radius: 5px;
+}
+
+.typing {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
 }
 
 .footer {
