@@ -19,6 +19,7 @@ function Practice() {
   const [flag, setFlag] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [characterCount, setCharacterCount] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
 
   function getMismatchPosition(word1, word2) {
     if (word1 === undefined || word2 === undefined) {
@@ -235,6 +236,7 @@ function Practice() {
       }
 
       setCharacterCount(completedCharacters);
+      setAccuracy(Math.round(((completedCharacters - mistakes) / completedCharacters) * 100));
     }
   }
 
@@ -319,7 +321,7 @@ function Practice() {
         value={typedWords}
         onChange={handleTypedWordsChange}
       />
-      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } />
+      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } accuracy={accuracy} />
     </div>
   );
 }
