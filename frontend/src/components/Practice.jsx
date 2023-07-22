@@ -369,9 +369,13 @@ function Practice() {
       </div>
       <Footer
         speed={
-           mode === "words"
-              ? time ? Math.round((characterCount / 5 / time) * 60) : 0
-              : raceTime!=time ? Math.round((characterCount / 5 / (raceTime - time)) * 60) : 0
+          mode === "words"
+            ? time
+              ? Math.round((characterCount / 5 / time) * 60)
+              : 0
+            : raceTime != time
+            ? Math.round((characterCount / 5 / (raceTime - time)) * 60)
+            : 0
         }
         accuracy={accuracy}
       />

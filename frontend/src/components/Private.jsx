@@ -330,7 +330,7 @@ function Private() {
         setProgressDivs(new Set(newProgressDivs));
 
         socket.emit("progress", {
-          percent: parseInt((i / words.length) * 100),
+          percent: mode === "words" ? parseInt((i / words.length) * 100) : i,
           username: localStorage.getItem("username"),
         });
 
@@ -573,24 +573,33 @@ function Private() {
           onChange={handleTypedWordsChange}
         />
       </div>
-      {[...progressDivs].map((val) => {
-        val = JSON.parse(val);
-        return (
-          <ProgressBar
-            id={val.name}
-            name={val.name}
-            percentage={val.percentage}
-            inpercent={val.inpercent}
-          />
-        );
-      })}
+      {[...progressDivs]
+        .toSorted(
+          (obj1, obj2) =>
+            JSON.parse(obj2).percentage - JSON.parse(obj1).percentage
+        )
+        .map((val) => {
+          val = JSON.parse(val);
+          return (
+            <ProgressBar
+              id={val.name}
+              name={val.name}
+              percentage={val.percentage}
+              inpercent={val.inpercent}
+            />
+          );
+        })}
       {countdown && <Toast />}
       <Footer
         speed={
           mode === "words"
-             ? time ? Math.round((characterCount / 5 / time) * 60) : 0
-             : raceTime!=time ? Math.round((characterCount / 5 / (raceTime - time)) * 60) : 0
-       }
+            ? time
+              ? Math.round((characterCount / 5 / time) * 60)
+              : 0
+            : raceTime != time
+            ? Math.round((characterCount / 5 / (raceTime - time)) * 60)
+            : 0
+        }
         accuracy={accuracy}
       />
     </div>
