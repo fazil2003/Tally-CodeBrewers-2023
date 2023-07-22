@@ -29,9 +29,17 @@ io.on("connect", (socket) => {
     socket.broadcast.emit("present", data);
   });
 
-  socket.on("disconnect", () => {
-    console.log("Disconnected");
+  socket.on("start", (data) => {
+    socket.broadcast.emit("start", data);
   });
+
+  socket.on("progress", (data) => {
+    socket.broadcast.emit("progress", data);
+  });
+
+  // socket.on("disconnect", () => {
+  //   console.log("Disconnected");
+  // });
 });
 
 const dbConnect = require("./config/dbConnect");

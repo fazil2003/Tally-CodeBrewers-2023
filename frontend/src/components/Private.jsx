@@ -32,9 +32,7 @@ function Private() {
   const [time, setTime] = useState(0);
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
-  const [userMap, setUserMap] = useState(
-    new Set(localStorage.getItem("username"))
-  );
+  const [isOwner, setIsOwner] = useState(false);
   const [progressDivs, setProgressDivs] = useState(
     new Set([
       JSON.stringify({
@@ -44,6 +42,24 @@ function Private() {
       }),
     ])
   );
+
+  useEffect(() => {
+    axios
+      .post(
+        defaultVariables.backendUrl + "/private/ownership",
+        { roomID },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      )
+      .then((response) => {
+        const { owner } = response.data;
+        setIsOwner(owner);
+      });
+  }, []);
 
   socket.on("join", (data) => {
     axios
@@ -94,6 +110,23 @@ function Private() {
       });
   });
 
+  socket.on("progress", (data) => {
+    const { username, percent } = data;
+    let newProgressDivs = [...progressDivs].filter((val) => {
+      return JSON.parse(val).name !== username;
+    });
+
+    newProgressDivs.push(
+      JSON.stringify({
+        name: username,
+        percentage: `${percent}`,
+        inpercent: `${percent}%`,
+      })
+    );
+
+    setProgressDivs(new Set(newProgressDivs));
+  });
+
   function getMismatchPosition(word1, word2) {
     if (word1 === undefined || word2 === undefined) {
       return 0;
@@ -137,15 +170,9 @@ function Private() {
   }
 
   function getSentence() {
-    document.getElementById("textarea").focus();
-    setFlag(false);
-    if (mode === "words") {
-      setTime(0);
-    } else {
-      setTime(parseInt(practiceTime));
-    }
-
-    setTimerState(false);
+    // document.getElementById("textarea").focus();
+    setFlag(true);
+    setTimerState(true);
 
     const practiceUrl =
       mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
@@ -168,15 +195,31 @@ function Private() {
         setTypedWords("");
         setWords(response.data.sentence.split(" "));
         setWordPointer(0);
+
+        if (mode === "words") {
+          setTime(0);
+          socket.emit("start", {
+            mode: "words",
+            sentence: response.data.sentence,
+          });
+        } else {
+          socket.emit("start", {
+            mode: "timer",
+            time: parseInt(practiceTime),
+            sentence: response.data.sentence,
+          });
+          setTime(parseInt(practiceTime));
+        }
       });
   }
 
   function handleTypedWordsChange(event) {
     if (timerState === false && flag === false) {
-      setTimerState(true);
-      setFlag(true);
+      setTypedWords("");
+      return;
     } else if (timerState === false && flag === true) {
       setTypedWords("");
+      return;
     }
 
     if (
@@ -207,6 +250,27 @@ function Private() {
         }
 
         setWordPointer(i);
+
+        let newProgressDivs = [...progressDivs].filter((val) => {
+          return JSON.parse(val).name !== localStorage.getItem("username");
+        });
+
+        const percent = parseInt((i / words.length) * 100);
+
+        newProgressDivs.push(
+          JSON.stringify({
+            name: localStorage.getItem("username"),
+            percentage: `${percent}`,
+            inpercent: `${percent}%`,
+          })
+        );
+
+        setProgressDivs(new Set(newProgressDivs));
+
+        socket.emit("progress", {
+          percent: parseInt((i / words.length) * 100),
+          username: localStorage.getItem("username"),
+        });
 
         if (i === words.length) {
           setTypedWords("");
@@ -307,6 +371,32 @@ function Private() {
     }
   }
 
+  socket.on("start", (data) => {
+    if (!isOwner) {
+      if (data.mode === "words") {
+        setTime(0);
+      } else {
+        setTime(data.time);
+      }
+
+      setMode(data.mode);
+      setSentence(data.sentence);
+      setFlag(true);
+      setTimerState(true);
+      setTextSpans(
+        <>
+          <span className="pending-characters current-character">
+            {data.sentence[0]}
+          </span>
+          <span className="pending-characters">{data.sentence.slice(1)}</span>
+        </>
+      );
+      setTypedWords("");
+      setWords(data.sentence.split(" "));
+      setWordPointer(0);
+    }
+  });
+
   useEffect(() => {
     let clock;
     if (timerState === true) {
@@ -330,51 +420,55 @@ function Private() {
   return (
     <div className="container">
       <div className="top-options">
-        <select className="select" value={mode} onChange={handleModeChange}>
-          <option value="words">Words</option>
-          <option value="timer">Time</option>
-        </select>
-        {mode === "timer" ? (
-          <select
-            className="select"
-            value={practiceTime}
-            onChange={handlePracticeTimeChange}
-          >
-            <option value="15">15 seconds</option>
-            <option value="30">30 seconds</option>
-            <option value="45">45 seconds</option>
-            <option value="60">1 minute</option>
-            <option value="120">2 minutes</option>
-            <option value="180">3 minutes</option>
-            <option value="300">5 minutes</option>
-          </select>
-        ) : (
-          <select
-            className="select"
-            value={practiceWords}
-            onChange={handlePracticeWordsChange}
-          >
-            <option value="10">10 words</option>
-            <option value="30">30 words</option>
-            <option value="50">50 words</option>
-            <option value="75">75 words</option>
-            <option value="100">100 words</option>
-            <option value="150">150 words</option>
-            <option value="200">200 words</option>
-          </select>
+        {isOwner && (
+          <>
+            <select className="select" value={mode} onChange={handleModeChange}>
+              <option value="words">Words</option>
+              <option value="timer">Time</option>
+            </select>
+            {mode === "timer" ? (
+              <select
+                className="select"
+                value={practiceTime}
+                onChange={handlePracticeTimeChange}
+              >
+                <option value="15">15 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="45">45 seconds</option>
+                <option value="60">1 minute</option>
+                <option value="120">2 minutes</option>
+                <option value="180">3 minutes</option>
+                <option value="300">5 minutes</option>
+              </select>
+            ) : (
+              <select
+                className="select"
+                value={practiceWords}
+                onChange={handlePracticeWordsChange}
+              >
+                <option value="10">10 words</option>
+                <option value="30">30 words</option>
+                <option value="50">50 words</option>
+                <option value="75">75 words</option>
+                <option value="100">100 words</option>
+                <option value="150">150 words</option>
+                <option value="200">200 words</option>
+              </select>
+            )}
+            <select
+              className="select"
+              value={difficulty}
+              onChange={handleDifficultyChange}
+            >
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+            <button className="button" onClick={getSentence}>
+              Start
+            </button>
+          </>
         )}
-        <select
-          className="select"
-          value={difficulty}
-          onChange={handleDifficultyChange}
-        >
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-        <button className="button" onClick={getSentence}>
-          Start
-        </button>
         <div className="timer">{time}</div>
       </div>
 
