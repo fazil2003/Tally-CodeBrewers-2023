@@ -6,6 +6,30 @@ import ProgressBar from "./ProgressBar";
 import io from "socket.io-client";
 import { useParams } from "react-router-dom";
 
+const Toast = () => {
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    let interval;
+    if (countdown > 0) {
+      interval = setInterval(() => {
+        setCountdown((prevCount) => prevCount - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [countdown]);
+
+  return (
+    <div className="toast">
+      <div className="message">Countdown:</div>
+      <div className="countdown">{countdown}</div>
+    </div>
+  );
+};
+
 const socket = io.connect(
   // defaultVariables.backendUrl + "/private/room/" + roomID
   "http://localhost:5010"
@@ -33,6 +57,7 @@ function Private() {
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [countdown, setCountdown] = useState(false);
   const [progressDivs, setProgressDivs] = useState(
     new Set([
       JSON.stringify({
@@ -171,8 +196,13 @@ function Private() {
 
   function getSentence() {
     // document.getElementById("textarea").focus();
-    setFlag(true);
-    setTimerState(true);
+    setCountdown(true);
+
+    setTimeout(() => {
+      setCountdown(false);
+      setFlag(true);
+      setTimerState(true);
+    }, 3000);
 
     const practiceUrl =
       mode === "words" ? `wordcount/${difficulty}` : `timer/${difficulty}`;
@@ -381,8 +411,15 @@ function Private() {
 
       setMode(data.mode);
       setSentence(data.sentence);
-      setFlag(true);
-      setTimerState(true);
+
+      setCountdown(true);
+
+      setTimeout(() => {
+        setCountdown(false);
+        setFlag(true);
+        setTimerState(true);
+      }, 3000);
+
       setTextSpans(
         <>
           <span className="pending-characters current-character">
@@ -493,6 +530,7 @@ function Private() {
           />
         );
       })}
+      {countdown && <Toast />}
       <Footer />
     </div>
   );

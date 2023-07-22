@@ -229,7 +229,7 @@ textarea {
   font-size: 14px;
 }
 
-.progressbar{
+.progressbar {
   margin: 10px;
   padding: 10px;
   width: 50%;
@@ -239,24 +239,57 @@ textarea {
   display: flex;
 }
 
-.progressbar p, .progressbar .progress{
+.progressbar p,
+.progressbar .progress {
   flex: 1;
 }
 
-.progressbar p{
+.progressbar p {
   text-align: center;
 }
 
-.progressbar .progress{
+.progressbar .progress {
   margin-top: 12.5px;
   width: 250px;
   height: 30px;
   border-radius: 30px;
-  background-color: #FFF;
+  background-color: #fff;
 }
 
-.progressbar .progress .fill{
+.progressbar .progress .fill {
   height: 100%;
   border-radius: 30px;
-  background-color: #1E90FF;
+  background-color: #1e90ff;
+}
+
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.countdown {
+  font-weight: bold;
+  margin-left: 5px;
+  animation: countdownAnimation 1s linear infinite;
+}
+
+@keyframes countdownAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
