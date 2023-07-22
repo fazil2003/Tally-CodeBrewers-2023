@@ -10,7 +10,7 @@ function Home() {
     }
 
     function goPrivate(){
-        window.location = defaultVariables.frontendUrl + "/private";
+        window.location = defaultVariables.frontendUrl + "/roomoptions";
     }
 
   return (

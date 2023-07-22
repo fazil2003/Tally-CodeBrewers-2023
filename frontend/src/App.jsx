@@ -9,6 +9,7 @@ import Register from "./components/Register";
 import CreateRoom from "./components/CreateRoom";
 import JoinRoom from "./components/JoinRoom";
 import Home from "./components/Home";
+import RoomOptions from "./components/RoomOptions";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/login" element={<Login />}></Route>
           <Route path="/home" element={<Home />}></Route>
           <Route path="/practice" element={<Practice />}></Route>
+          <Route path="/roomoptions" element={<RoomOptions />}></Route>
           <Route path="/private/:roomID" element={<Private />}></Route>
           <Route path="/createroom" element={<CreateRoom />}></Route>
           <Route path="/joinroom" element={<JoinRoom />}></Route>
