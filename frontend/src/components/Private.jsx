@@ -6,6 +6,26 @@ import ProgressBar from "./ProgressBar";
 import io from "socket.io-client";
 import { useParams } from "react-router-dom";
 
+const LCS = (text1, text2) => {
+  const m = text1.length;
+  const n = text2.length;
+
+  const dp = new Array(n + 1).fill(0);
+  for (let i = 1; i <= m; i++) {
+    let prev = 0;
+    for (let j = 1; j <= n; j++) {
+      const temp = dp[j];
+      if (text1[i - 1] === text2[j - 1]) {
+        dp[j] = prev + 1;
+      } else {
+        dp[j] = Math.max(dp[j], dp[j - 1]);
+      }
+      prev = temp;
+    }
+  }
+  return dp[n];
+};
+
 const Toast = () => {
   const [countdown, setCountdown] = useState(3);
 
@@ -30,9 +50,7 @@ const Toast = () => {
   );
 };
 
-const socket = io.connect(
-  "http://localhost:5010"
-);
+const socket = io.connect("http://localhost:5010");
 
 socket.emit("join", {
   username: localStorage.getItem("username"),
@@ -56,6 +74,7 @@ function Private() {
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [raceTime, setRaceTime] = useState(15);
   const [countdown, setCountdown] = useState(false);
   const [progressDivs, setProgressDivs] = useState(
     new Set([
@@ -177,6 +196,7 @@ function Private() {
   function handlePracticeTimeChange(event) {
     setPracticeTime(event.target.value);
     setTime(event.target.value);
+    setRaceTime(event.target.value);
   }
 
   function handleModeChange(event) {
@@ -189,6 +209,7 @@ function Private() {
     } else {
       setPracticeTime("15");
       setTime(15);
+      setRaceTime(15);
     }
   }
 
@@ -227,6 +248,9 @@ function Private() {
         setTypedWords("");
         setWords(response.data.sentence.split(" "));
         setWordPointer(0);
+        setCharacterCount(0);
+        setAccuracy(0);
+        setMistakes(0);
 
         if (mode === "words") {
           setTime(0);
@@ -241,6 +265,7 @@ function Private() {
             sentence: response.data.sentence,
           });
           setTime(parseInt(practiceTime));
+          setRaceTime(parseInt(practiceTime));
         }
       });
   }
@@ -255,6 +280,7 @@ function Private() {
     }
 
     let completedCharacters = 0;
+    let mistakeFlag = 0;
 
     if (
       words.length === 0 ||
@@ -265,6 +291,7 @@ function Private() {
       setTypedWords("");
     } else {
       let typedWordsArray = event.target.value.split(" ");
+
       if (
         typedWordsArray[0] === words[wordPointer] &&
         typedWordsArray.length !== 1
@@ -353,6 +380,7 @@ function Private() {
           currentIndex += event.target.value.length - 1;
 
           if (currentIndex >= sentence.length) {
+            ++mistakeFlag;
             setMistakes((oldValue) => {
               return oldValue + 1;
             });
@@ -360,6 +388,7 @@ function Private() {
             sentence[currentIndex] !==
             event.target.value[event.target.value.length - 1]
           ) {
+            ++mistakeFlag;
             setMistakes((oldValue) => {
               return oldValue + 1;
             });
@@ -398,17 +427,38 @@ function Private() {
           </>
         );
       }
+
+      const lcs = LCS(words[wordPointer], event.target.value);
+      let typeCount = 0;
+
+      for (let i = 0; i < wordPointer; ++i) {
+        typeCount += 1 + words[wordPointer].length;
+      }
+
+      console.log(mistakeFlag);
+      typeCount += event.target.value.length;
+
       setCharacterCount(completedCharacters);
-      setAccuracy(Math.round(((completedCharacters - mistakes) / completedCharacters) * 100));
+      setAccuracy(
+        Math.round(
+          ((typeCount - event.target.value.length + lcs) /
+            (typeCount + mistakes + mistakeFlag)) *
+            100
+        )
+      );
     }
   }
 
   socket.on("start", (data) => {
     if (!isOwner) {
+      setCharacterCount(0);
+      setAccuracy(0);
+      setMistakes(0);
       if (data.mode === "words") {
         setTime(0);
       } else {
         setTime(data.time);
+        setRaceTime(data.time);
       }
 
       setMode(data.mode);
@@ -535,7 +585,16 @@ function Private() {
         );
       })}
       {countdown && <Toast />}
-      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } accuracy={accuracy} />
+      <Footer
+        speed={
+          time
+            ? mode === "words"
+              ? Math.round((characterCount / 5 / time) * 60)
+              : Math.round((characterCount / 5 / (raceTime - time)) * 60)
+            : 0
+        }
+        accuracy={accuracy}
+      />
     </div>
   );
 }

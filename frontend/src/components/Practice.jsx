@@ -3,6 +3,26 @@ import { useState, useEffect, useRef } from "react";
 import defaultVariables from "../variables";
 import Footer from "./footer";
 
+const LCS = (text1, text2) => {
+  const m = text1.length;
+  const n = text2.length;
+
+  const dp = new Array(n + 1).fill(0);
+  for (let i = 1; i <= m; i++) {
+    let prev = 0;
+    for (let j = 1; j <= n; j++) {
+      const temp = dp[j];
+      if (text1[i - 1] === text2[j - 1]) {
+        dp[j] = prev + 1;
+      } else {
+        dp[j] = Math.max(dp[j], dp[j - 1]);
+      }
+      prev = temp;
+    }
+  }
+  return dp[n];
+};
+
 function Practice() {
   const [mode, setMode] = useState("words");
   const [sentence, setSentence] = useState("");
@@ -15,6 +35,7 @@ function Practice() {
   const [textSpans, setTextSpans] = useState(<></>);
   const [mistakes, setMistakes] = useState(0);
   const [time, setTime] = useState(0);
+  const [raceTime, setRaceTime] = useState(15);
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
   const [wordCount, setWordCount] = useState(0);
@@ -44,6 +65,7 @@ function Practice() {
   function handlePracticeTimeChange(event) {
     setPracticeTime(event.target.value);
     setTime(event.target.value);
+    setRaceTime(event.target.value);
   }
 
   function handleModeChange(event) {
@@ -56,6 +78,7 @@ function Practice() {
     } else {
       setPracticeTime("15");
       setTime(15);
+      setRaceTime(15);
     }
   }
 
@@ -65,12 +88,15 @@ function Practice() {
 
   function getSentence() {
     setWordCount(0);
+    setAccuracy(0);
+    setMistakes(0);
     document.getElementById("textarea").focus();
     setFlag(false);
     if (mode === "words") {
       setTime(0);
     } else {
       setTime(parseInt(practiceTime));
+      setRaceTime(parseInt(practiceTime));
     }
 
     setTimerState(false);
@@ -108,6 +134,7 @@ function Practice() {
     }
 
     let completedCharacters = 0;
+    let mistakeFlag = 0;
 
     if (
       words.length === 0 ||
@@ -189,6 +216,7 @@ function Practice() {
           currentIndex += event.target.value.length - 1;
 
           if (currentIndex >= sentence.length) {
+            ++mistakeFlag;
             setMistakes((oldValue) => {
               return oldValue + 1;
             });
@@ -197,6 +225,7 @@ function Practice() {
             event.target.value[event.target.value.length - 1]
           ) {
             setMistakes((oldValue) => {
+              ++mistakeFlag;
               return oldValue + 1;
             });
           }
@@ -235,10 +264,22 @@ function Practice() {
         );
       }
 
+      const lcs = LCS(words[wordPointer], event.target.value);
+      let typeCount = 0;
+
+      for (let i = 0; i < wordPointer; ++i) {
+        typeCount += 1 + words[wordPointer].length;
+      }
+
+      typeCount += event.target.value.length;
+
       setCharacterCount(completedCharacters);
+
       setAccuracy(
         Math.round(
-          ((completedCharacters - mistakes) / completedCharacters) * 100
+          ((typeCount - event.target.value.length + lcs) /
+            (typeCount + mistakes + mistakeFlag)) *
+            100
         )
       );
     }
@@ -327,7 +368,13 @@ function Practice() {
         />
       </div>
       <Footer
-        speed={time ? Math.round((characterCount / 5 / time) * 60) : 0}
+        speed={
+          time
+            ? mode === "words"
+              ? Math.round((characterCount / 5 / time) * 60)
+              : Math.round((characterCount / 5 / (raceTime - time)) * 60)
+            : 0
+        }
         accuracy={accuracy}
       />
     </div>
