@@ -27,9 +27,12 @@ function JoinRoom() {
     event.preventDefault();
     const parameters = { roomID, password };
     axios
-      .post(defaultVariables.backendUrl + "/private/joinroom", parameters)
+      .post(defaultVariables.backendUrl + "/private/joinroom", parameters, {
+        headers,
+      })
       .then((response) => {
-        window.location = defaultVariables.frontendUrl + "/private";
+        window.location =
+          defaultVariables.frontendUrl + "/private/" + response.data.room.roomID;
       })
       .catch((error) => {
         alert(`Error: ${error}`);
