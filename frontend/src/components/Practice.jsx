@@ -236,7 +236,11 @@ function Practice() {
       }
 
       setCharacterCount(completedCharacters);
-      setAccuracy(Math.round(((completedCharacters - mistakes) / completedCharacters) * 100));
+      setAccuracy(
+        Math.round(
+          ((completedCharacters - mistakes) / completedCharacters) * 100
+        )
+      );
     }
   }
 
@@ -314,14 +318,18 @@ function Practice() {
       <p id="some" className="sentence">
         {textSpans}
       </p>
-      <textarea
-        id="textarea"
-        style={{ width: "100", height: "100" }}
-        className="textarea"
-        value={typedWords}
-        onChange={handleTypedWordsChange}
+      <div className="typing">
+        <input
+          id="textarea"
+          className="textarea"
+          value={typedWords}
+          onChange={handleTypedWordsChange}
+        />
+      </div>
+      <Footer
+        speed={time ? Math.round((characterCount / 5 / time) * 60) : 0}
+        accuracy={accuracy}
       />
-      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } accuracy={accuracy} />
     </div>
   );
 }
