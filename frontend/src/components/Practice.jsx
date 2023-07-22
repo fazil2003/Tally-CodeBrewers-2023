@@ -18,6 +18,7 @@ function Practice() {
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
   const [wordCount, setWordCount] = useState(0);
+  const [characterCount, setCharacterCount] = useState(0);
 
   function getMismatchPosition(word1, word2) {
     if (word1 === undefined || word2 === undefined) {
@@ -105,6 +106,8 @@ function Practice() {
       setTypedWords("");
     }
 
+    let completedCharacters = 0;
+
     if (
       words.length === 0 ||
       wordPointer === words.length ||
@@ -144,8 +147,6 @@ function Practice() {
         setWordCount((oldValue) => {
           return oldValue + 1;
         });
-
-        let completedCharacters = 0;
 
         for (let j = 0; j < i; ++j) {
           completedCharacters += words[j].length + 1;
@@ -202,8 +203,6 @@ function Practice() {
 
         setTypedWords(event.target.value.trimStart());
 
-        let completedCharacters = 0;
-
         for (let i = 0; i < wordPointer; ++i) {
           completedCharacters += words[i].length + 1;
         }
@@ -234,6 +233,8 @@ function Practice() {
           </>
         );
       }
+
+      setCharacterCount(completedCharacters);
     }
   }
 
@@ -318,7 +319,7 @@ function Practice() {
         value={typedWords}
         onChange={handleTypedWordsChange}
       />
-      <Footer speed = { time? Math.round((wordCount / time) * 60) : 0 } />
+      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } />
     </div>
   );
 }
