@@ -2,9 +2,11 @@
 
 Team Name: <b>Tech Titans</b><br>
 Team Members:
+<b>
 - Sharan S S
 - Mohamed Fazil Z
 - Muthu Vijay Y
+</b>
 
 ## How to run?
 - Go to the /backend, open the command prompt and run the `npm i` command to install the necessary libraries.
