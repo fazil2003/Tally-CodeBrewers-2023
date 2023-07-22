@@ -285,6 +285,21 @@ button {
   align-items: center;
 }
 
+.home-menu{
+  width: 50%;
+  display: flex;
+}
+
+.home-menu .component{
+  border-radius: 10px;
+  background-color: var(--highlight-color);
+  color: var(--dark-color);
+  padding: 20px;
+  margin: 10px;
+  font-weight: 700;
+  flex: 1;
+}
+
 .countdown {
   font-weight: bold;
   margin-left: 5px;
