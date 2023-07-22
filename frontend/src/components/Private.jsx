@@ -316,7 +316,8 @@ function Private() {
           return JSON.parse(val).name !== localStorage.getItem("username");
         });
 
-        const percent = parseInt((i / words.length) * 100);
+        const percent =
+          mode === "words" ? parseInt((i / words.length) * 100) : i;
 
         newProgressDivs.push(
           JSON.stringify({
@@ -435,7 +436,6 @@ function Private() {
         typeCount += 1 + words[wordPointer].length;
       }
 
-      console.log(mistakeFlag);
       typeCount += event.target.value.length;
 
       setCharacterCount(completedCharacters);
