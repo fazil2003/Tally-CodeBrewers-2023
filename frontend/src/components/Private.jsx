@@ -69,6 +69,7 @@ function Private() {
   );
   
   const [characterCount, setCharacterCount] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
 
   useEffect(() => {
     axios
@@ -399,6 +400,7 @@ function Private() {
         );
       }
       setCharacterCount(completedCharacters);
+      setAccuracy(Math.round(((completedCharacters - mistakes) / completedCharacters) * 100));
     }
   }
 
@@ -532,7 +534,7 @@ function Private() {
         );
       })}
       {countdown && <Toast />}
-      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } />
+      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } accuracy={accuracy} />
     </div>
   );
 }
