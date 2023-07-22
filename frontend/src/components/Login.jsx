@@ -26,7 +26,7 @@ function Login() {
       .then((response) => {
         localStorage.setItem("username", response.data.username);
         localStorage.setItem("token", response.data.token);
-        window.location = defaultVariables.frontendUrl + "/practice";
+        window.location = defaultVariables.frontendUrl + "/home";
       })
       .catch((error) => {
         alert(`Error: ${error}`);
