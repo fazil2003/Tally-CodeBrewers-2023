@@ -131,6 +131,7 @@ function Practice() {
       setFlag(true);
     } else if (timerState === false && flag === true) {
       setTypedWords("");
+      return;
     }
 
     let completedCharacters = 0;
