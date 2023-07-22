@@ -7,6 +7,10 @@ import io from "socket.io-client";
 import { useParams } from "react-router-dom";
 
 const LCS = (text1, text2) => {
+  if (text1 + " " === text2) {
+    return text2.length;
+  }
+
   const m = text1.length;
   const n = text2.length;
 

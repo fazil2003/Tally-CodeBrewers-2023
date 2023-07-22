@@ -4,6 +4,10 @@ import defaultVariables from "../variables";
 import Footer from "./footer";
 
 const LCS = (text1, text2) => {
+  if (text1 + " " === text2) {
+    return text2.length;
+  }
+
   const m = text1.length;
   const n = text2.length;
 
@@ -126,7 +130,7 @@ function Practice() {
   }
 
   function handleTypedWordsChange(event) {
-    if (timerState === false && flag === false) {
+    if (timerState === false && flag === false && sentence !== "") {
       setTimerState(true);
       setFlag(true);
     } else if (timerState === false && flag === true) {
