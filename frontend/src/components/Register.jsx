@@ -6,9 +6,6 @@ function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  localStorage.removeItem("token");
-  localStorage.removeItem("username");
-
   function changeUsername(event) {
     setUsername((oldValue) => {
       return event.target.value;

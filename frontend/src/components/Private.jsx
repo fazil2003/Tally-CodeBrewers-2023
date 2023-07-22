@@ -6,21 +6,18 @@ import ProgressBar from "./ProgressBar";
 import io from "socket.io-client";
 import { useParams } from "react-router-dom";
 
+const socket = io.connect(
+  // defaultVariables.backendUrl + "/private/room/" + roomID
+  "http://localhost:5010"
+);
+
+socket.emit("join", {
+  username: localStorage.getItem("username"),
+});
+
 function Private() {
   const params = useParams();
   const roomID = params.roomID;
-  const socket = io.connect(
-    // defaultVariables.backendUrl + "/private/room/" + roomID
-    "http://localhost:5010"
-  );
-
-  socket.emit(
-    "message",
-    JSON.stringify({
-      username: localStorage.getItem("username"),
-      subject: "join",
-    })
-  );
 
   const [mode, setMode] = useState("words");
   const [sentence, setSentence] = useState("");
@@ -35,42 +32,66 @@ function Private() {
   const [time, setTime] = useState(0);
   const [timerState, setTimerState] = useState(false);
   const [flag, setFlag] = useState(false);
-  const [progressDivs, setProgressDivs] = useState([
-    <ProgressBar
-      id={localStorage.getItem("username")}
-      name={localStorage.getItem("username")}
-      percentage={"0"}
-      inpercent={"0%"}
-    />,
-  ]);
+  const [userMap, setUserMap] = useState(
+    new Set(localStorage.getItem("username"))
+  );
+  const [progressDivs, setProgressDivs] = useState(
+    new Set([
+      JSON.stringify({
+        name: localStorage.getItem("username"),
+        percentage: "0",
+        inpercent: "0%",
+      }),
+    ])
+  );
 
-  socket.on("message", (message) => {
-    const { username, subject } = JSON.parse(message);
-    if (subject === "join") {
-      socket.emit(
-        "message",
-        JSON.stringify({
-          username: localStorage.getItem("username"),
-          subject: "join",
-        })
-      );
-      setProgressDivs((oldValue) => {
-        for (const progressBar of oldValue) {
-          if (progressBar.id === username) {
-            return oldValue;
-          }
+  socket.on("join", (data) => {
+    axios
+      .post(
+        defaultVariables.backendUrl + "/private/ownership",
+        { roomID },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
         }
-        return [
-          ...oldValue,
-          <ProgressBar
-            id={username}
-            name={username}
-            percentage={"0"}
-            inpercent={"0%"}
-          />,
-        ];
+      )
+      .then((response) => {
+        const { owner } = response.data;
+        if (owner === true) {
+          let newValue = new Set([
+            ...progressDivs,
+            JSON.stringify({
+              name: data.username,
+              percentage: "0",
+              inpercent: "0%",
+            }),
+          ]);
+          socket.emit("present", { users: [...newValue] });
+          setProgressDivs(newValue);
+        }
       });
-    }
+  });
+
+  socket.on("present", (data) => {
+    axios
+      .post(
+        defaultVariables.backendUrl + "/private/ownership",
+        { roomID },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      )
+      .then((response) => {
+        const { owner } = response.data;
+        if (!owner) {
+          setProgressDivs(new Set(data.users));
+        }
+      });
   });
 
   function getMismatchPosition(word1, word2) {
@@ -352,7 +373,7 @@ function Private() {
           <option value="hard">Hard</option>
         </select>
         <button className="button" onClick={getSentence}>
-          Set
+          Start
         </button>
         <div className="timer">{time}</div>
       </div>
@@ -367,7 +388,17 @@ function Private() {
         value={typedWords}
         onChange={handleTypedWordsChange}
       />
-      {progressDivs}
+      {[...progressDivs].map((val) => {
+        val = JSON.parse(val);
+        return (
+          <ProgressBar
+            id={val.name}
+            name={val.name}
+            percentage={val.percentage}
+            inpercent={val.inpercent}
+          />
+        );
+      })}
       <Footer />
     </div>
   );

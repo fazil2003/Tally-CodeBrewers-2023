@@ -44,6 +44,21 @@ const joinRoom = asyncHandler(async (req, res) => {
   }
 });
 
+const isCreator = asyncHandler(async (req, res) => {
+  const { roomID } = req.body;
+
+  const room = await Room.findOne({
+    roomID: roomID,
+    creator: req.user.username,
+  });
+
+  if (room) {
+    res.status(200).json({ owner: true });
+  } else {
+    res.status(200).json({ owner: false });
+  }
+});
+
 // const testRoom = asyncHandler(async (req, res) => {
 //   console.log("123");
 //   const roomID = req.params.roomID;
@@ -72,4 +87,4 @@ const joinRoom = asyncHandler(async (req, res) => {
 //   }
 // });
 
-module.exports = { createRoom, joinRoom };
+module.exports = { createRoom, joinRoom, isCreator };

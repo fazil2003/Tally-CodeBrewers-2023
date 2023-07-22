@@ -20,13 +20,17 @@ const errorHandler = require("./middleware/errorHandler");
 
 const port = process.env.PORT || 5000;
 
-io.on("connection", (socket) => {
-  socket.on("message", (data) => {
-    io.emit("message", data);
+io.on("connect", (socket) => {
+  socket.on("join", (data) => {
+    socket.broadcast.emit("join", data);
+  });
+
+  socket.on("present", (data) => {
+    socket.broadcast.emit("present", data);
   });
 
   socket.on("disconnect", () => {
-    io.emit("message", "A user has left the room");
+    console.log("Disconnected");
   });
 });
 
