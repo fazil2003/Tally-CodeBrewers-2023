@@ -67,6 +67,8 @@ function Private() {
       }),
     ])
   );
+  
+  const [characterCount, setCharacterCount] = useState(0);
 
   useEffect(() => {
     axios
@@ -252,6 +254,8 @@ function Private() {
       return;
     }
 
+    let completedCharacters = 0;
+
     if (
       words.length === 0 ||
       wordPointer === words.length ||
@@ -309,8 +313,6 @@ function Private() {
           setTypedWords(typedWordsArray.join(" ").trimStart());
         }
 
-        let completedCharacters = 0;
-
         for (let j = 0; j < i; ++j) {
           completedCharacters += words[j].length + 1;
         }
@@ -366,8 +368,6 @@ function Private() {
 
         setTypedWords(event.target.value.trimStart());
 
-        let completedCharacters = 0;
-
         for (let i = 0; i < wordPointer; ++i) {
           completedCharacters += words[i].length + 1;
         }
@@ -398,6 +398,7 @@ function Private() {
           </>
         );
       }
+      setCharacterCount(completedCharacters);
     }
   }
 
@@ -531,7 +532,7 @@ function Private() {
         );
       })}
       {countdown && <Toast />}
-      <Footer />
+      <Footer speed = { time? Math.round(((characterCount/5) / time) * 60) : 0 } />
     </div>
   );
 }
