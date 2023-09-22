@@ -59,32 +59,4 @@ const isCreator = asyncHandler(async (req, res) => {
   }
 });
 
-// const testRoom = asyncHandler(async (req, res) => {
-//   console.log("123");
-//   const roomID = req.params.roomID;
-
-//   const room = await Room.findOne({
-//     roomID: roomID,
-//   });
-
-//   if (room) {
-//     io.on("connection", (socket) => {
-//       console.log("New connection");
-//       // socket.emit("message", "Welcome to the room");
-//       // socket.broadcast.emit("message", "A user has joined the room");
-
-//       socket.on("disconnect", () => {
-//         io.emit("message", "A user has left the room");
-//       });
-
-//       socket.on("message", (data) => {
-//         io.emit("message", JSON.stringify(data));
-//       });
-//     });
-//   } else {
-//     res.status(401);
-//     throw new Error("Invalid room credentials");
-//   }
-// });
-
 module.exports = { createRoom, joinRoom, isCreator };

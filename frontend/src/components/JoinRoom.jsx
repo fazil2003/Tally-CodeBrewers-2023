@@ -32,7 +32,9 @@ function JoinRoom() {
       })
       .then((response) => {
         window.location =
-          defaultVariables.frontendUrl + "/private/" + response.data.room.roomID;
+          defaultVariables.frontendUrl +
+          "/private/" +
+          response.data.room.roomID;
       })
       .catch((error) => {
         alert(`Error: ${error}`);

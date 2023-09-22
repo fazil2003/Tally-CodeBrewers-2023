@@ -582,11 +582,11 @@ function Private() {
           (obj1, obj2) =>
             JSON.parse(obj2).percentage - JSON.parse(obj1).percentage
         )
-        .map((val) => {
+        .map((val, idx) => {
           val = JSON.parse(val);
           return (
             <ProgressBar
-              id={val.name}
+              key={idx}
               name={val.name}
               percentage={val.percentage}
               inpercent={val.inpercent}

@@ -285,12 +285,12 @@ button {
   align-items: center;
 }
 
-.home-menu{
+.home-menu {
   width: 50%;
   display: flex;
 }
 
-.home-menu .component{
+.home-menu .component {
   border-radius: 10px;
   background-color: var(--highlight-color);
   color: var(--dark-color);
