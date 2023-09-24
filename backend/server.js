@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const { Server } = require("socket.io");
+const Room = require("./models/roomModel");
 
 const cors = require("cors");
 app.use(cors());
@@ -22,24 +23,42 @@ const port = process.env.PORT || 5000;
 
 io.on("connect", (socket) => {
   socket.on("join", (data) => {
-    socket.broadcast.emit("join", data);
+    if (data.roomID.length === 6) {
+      socket.broadcast.emit("join", data);
+    }
   });
 
   socket.on("present", (data) => {
-    socket.broadcast.emit("present", data);
+    if (data.roomID.length === 6) {
+      socket.broadcast.emit("present", data);
+    }
   });
 
   socket.on("start", (data) => {
-    socket.broadcast.emit("start", data);
+    if (data.roomID.length === 6) {
+      socket.broadcast.emit("start", data);
+    }
   });
 
   socket.on("progress", (data) => {
-    socket.broadcast.emit("progress", data);
+    if (data.roomID.length === 6) {
+      socket.broadcast.emit("progress", data);
+    }
   });
 
-  // socket.on("disconnect", () => {
-  //   console.log("Disconnected");
-  // });
+  socket.on("exitRoom", (data) => {
+    if (data.roomID.length === 6) {
+      Room.findOne({ roomID: data.roomID }).then((room) => {
+        if (room && room.creator === data.username) {
+          Room.deleteOne({ roomID: data.roomID }).then(() => {
+            socket.broadcast.emit("close", data);
+          });
+        } else {
+          socket.broadcast.emit("exitRoom", data);
+        }
+      });
+    }
+  });
 });
 
 const dbConnect = require("./config/dbConnect");

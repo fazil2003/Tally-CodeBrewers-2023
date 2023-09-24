@@ -31,6 +31,7 @@ function JoinRoom() {
         headers,
       })
       .then((response) => {
+        localStorage.setItem("password", password);
         window.location =
           defaultVariables.frontendUrl +
           "/private/" +

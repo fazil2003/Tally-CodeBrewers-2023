@@ -25,6 +25,7 @@ function CreateRoom() {
       })
       .then((response) => {
         alert("Room created successfully");
+        localStorage.setItem("password", password);
         window.location =
           defaultVariables.frontendUrl + "/private/" + response.data.roomID;
       })

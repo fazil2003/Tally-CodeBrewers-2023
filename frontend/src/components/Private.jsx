@@ -4,7 +4,8 @@ import defaultVariables from "../variables";
 import Footer from "./footer";
 import ProgressBar from "./ProgressBar";
 import io from "socket.io-client";
-import { useParams } from "react-router-dom";
+
+const roomID = window.location.href.split("/").pop();
 
 const LCS = (text1, text2) => {
   if (text1 + " " === text2) {
@@ -57,12 +58,34 @@ const Toast = () => {
 const socket = io.connect("http://localhost:5010");
 
 socket.emit("join", {
+  roomID: roomID,
   username: localStorage.getItem("username"),
 });
 
+window.addEventListener("beforeunload", (event) => {
+  socket.emit("exitRoom", {
+    roomID: roomID,
+    username: localStorage.getItem("username"),
+  });
+  socket.close();
+});
+
 function Private() {
-  const params = useParams();
-  const roomID = params.roomID;
+  axios
+    .post(
+      defaultVariables.backendUrl + "/private/joinroom",
+      { roomID, password: localStorage.getItem("password") },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    )
+    .catch((error) => {
+      localStorage.removeItem("password");
+      window.location = defaultVariables.frontendUrl + "/joinroom";
+    });
 
   const [mode, setMode] = useState("words");
   const [sentence, setSentence] = useState("");
@@ -92,6 +115,7 @@ function Private() {
 
   const [characterCount, setCharacterCount] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
     axios
@@ -111,70 +135,103 @@ function Private() {
       });
   }, []);
 
-  socket.on("join", (data) => {
-    axios
-      .post(
-        defaultVariables.backendUrl + "/private/ownership",
-        { roomID },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        }
-      )
-      .then((response) => {
-        const { owner } = response.data;
-        if (owner === true) {
-          let newValue = new Set([
-            ...progressDivs,
-            JSON.stringify({
-              name: data.username,
-              percentage: "0",
-              inpercent: "0%",
-            }),
-          ]);
-          socket.emit("present", { users: [...newValue] });
-          setProgressDivs(newValue);
-        }
+  socket.on("exitRoom", (data) => {
+    if (data.roomID === roomID) {
+      const exitedUser = data.username;
+      const newProgressDivs = [...progressDivs].filter((value) => {
+        return JSON.parse(value).name !== exitedUser;
       });
+      setProgressDivs(new Set(newProgressDivs));
+    }
+  });
+
+  socket.on("close", (data) => {
+    localStorage.removeItem("password");
+    window.location = window.location =
+      defaultVariables.frontendUrl + "/joinroom";
+  });
+
+  socket.on("join", (data) => {
+    if (data.roomID === roomID) {
+      axios
+        .post(
+          defaultVariables.backendUrl + "/private/ownership",
+          { roomID },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }
+        )
+        .then((response) => {
+          const { owner } = response.data;
+          if (owner === true) {
+            let newValue = new Set([
+              ...progressDivs,
+              JSON.stringify({
+                name: data.username,
+                percentage: "0",
+                inpercent: "0%",
+              }),
+            ]);
+            socket.emit("present", { roomID: roomID, users: [...newValue] });
+            setProgressDivs(newValue);
+          }
+        });
+    }
   });
 
   socket.on("present", (data) => {
-    axios
-      .post(
-        defaultVariables.backendUrl + "/private/ownership",
-        { roomID },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        }
-      )
-      .then((response) => {
-        const { owner } = response.data;
-        if (!owner) {
-          setProgressDivs(new Set(data.users));
-        }
-      });
+    if (data.roomID === roomID) {
+      axios
+        .post(
+          defaultVariables.backendUrl + "/private/ownership",
+          { roomID },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }
+        )
+        .then((response) => {
+          const { owner } = response.data;
+          if (!owner) {
+            setProgressDivs(new Set(data.users));
+          }
+        });
+    }
   });
 
   socket.on("progress", (data) => {
-    const { username, percent } = data;
-    let newProgressDivs = [...progressDivs].filter((val) => {
-      return JSON.parse(val).name !== username;
-    });
+    if (data.roomID === roomID) {
+      const { username, percent } = data;
+      let newProgressDivs = [...progressDivs].filter((val) => {
+        return JSON.parse(val).name !== username;
+      });
 
-    newProgressDivs.push(
-      JSON.stringify({
-        name: username,
-        percentage: `${percent}`,
-        inpercent: `${percent}%`,
-      })
-    );
+      newProgressDivs.push(
+        JSON.stringify({
+          name: username,
+          percentage: `${percent}`,
+          inpercent: `${percent}%`,
+        })
+      );
 
-    setProgressDivs(new Set(newProgressDivs));
+      setProgressDivs(new Set(newProgressDivs));
+
+      if (percent === 100) {
+        let canEnableButton = true;
+        for (let progressDiv of [...newProgressDivs]) {
+          if (!["0", "100"].includes(JSON.parse(progressDiv).percentage)) {
+            canEnableButton = false;
+            break;
+          }
+        }
+        setIsButtonDisabled(!canEnableButton);
+      }
+    }
   });
 
   function getMismatchPosition(word1, word2) {
@@ -223,6 +280,15 @@ function Private() {
 
   function getSentence() {
     document.getElementById("textarea").focus();
+
+    const newProgressDivs = [...progressDivs].map((value) => {
+      let newValue = JSON.parse(value);
+      newValue.percentage = "0";
+      newValue.inpercent = "0%";
+      return JSON.stringify(newValue);
+    });
+    setProgressDivs(newProgressDivs);
+
     setCountdown(true);
 
     setTimeout(() => {
@@ -259,11 +325,13 @@ function Private() {
         if (mode === "words") {
           setTime(0);
           socket.emit("start", {
+            roomID: roomID,
             mode: "words",
             sentence: response.data.sentence,
           });
         } else {
           socket.emit("start", {
+            roomID: roomID,
             mode: "timer",
             time: parseInt(practiceTime),
             sentence: response.data.sentence,
@@ -272,6 +340,7 @@ function Private() {
           setRaceTime(parseInt(practiceTime));
         }
       });
+    setIsButtonDisabled(true);
   }
 
   function handleTypedWordsChange(event) {
@@ -334,6 +403,7 @@ function Private() {
         setProgressDivs(new Set(newProgressDivs));
 
         socket.emit("progress", {
+          roomID: roomID,
           percent: mode === "words" ? parseInt((i / words.length) * 100) : i,
           username: localStorage.getItem("username"),
         });
@@ -341,6 +411,15 @@ function Private() {
         if (i === words.length) {
           setTypedWords("");
           setTimerState(false);
+
+          let canEnableButton = true;
+          for (let progressDiv of [...newProgressDivs]) {
+            if (!["0", "100"].includes(JSON.parse(progressDiv).percentage)) {
+              canEnableButton = false;
+              break;
+            }
+          }
+          setIsButtonDisabled(!canEnableButton);
         } else {
           setTypedWords(typedWordsArray.join(" ").trimStart());
         }
@@ -454,39 +533,53 @@ function Private() {
   }
 
   socket.on("start", (data) => {
-    if (!isOwner) {
-      setCharacterCount(0);
-      setAccuracy(0);
-      setMistakes(0);
-      if (data.mode === "words") {
-        setTime(0);
-      } else {
-        setTime(data.time);
-        setRaceTime(data.time);
+    if (data.roomID === roomID) {
+      if (!isOwner) {
+        const newProgressDivs = [...progressDivs].map((value) => {
+          let newValue = JSON.parse(value);
+          newValue.percentage = "0";
+          newValue.inpercent = "0%";
+          return JSON.stringify(newValue);
+        });
+        setProgressDivs(newProgressDivs);
+
+        if (timerState === true) {
+          setTimerState(false);
+        }
+
+        setCharacterCount(0);
+        setAccuracy(0);
+        setMistakes(0);
+        if (data.mode === "words") {
+          setTime(0);
+        } else {
+          setTime(data.time);
+          setRaceTime(data.time);
+        }
+
+        setMode(data.mode);
+        setSentence(data.sentence);
+
+        setCountdown(true);
+
+        setTimeout(() => {
+          setCountdown(false);
+          setFlag(true);
+          setTimerState(true);
+        }, 3000);
+
+        setTextSpans(
+          <>
+            <span className="pending-characters current-character">
+              {data.sentence[0]}
+            </span>
+            <span className="pending-characters">{data.sentence.slice(1)}</span>
+          </>
+        );
+        setTypedWords("");
+        setWords(data.sentence.split(" "));
+        setWordPointer(0);
       }
-
-      setMode(data.mode);
-      setSentence(data.sentence);
-
-      setCountdown(true);
-
-      setTimeout(() => {
-        setCountdown(false);
-        setFlag(true);
-        setTimerState(true);
-      }, 3000);
-
-      setTextSpans(
-        <>
-          <span className="pending-characters current-character">
-            {data.sentence[0]}
-          </span>
-          <span className="pending-characters">{data.sentence.slice(1)}</span>
-        </>
-      );
-      setTypedWords("");
-      setWords(data.sentence.split(" "));
-      setWordPointer(0);
     }
   });
 
@@ -499,6 +592,7 @@ function Private() {
         } else {
           if (time <= 1) {
             setTimerState(false);
+            setIsButtonDisabled(false);
           }
           setTime((oldValue) => oldValue - 1);
         }
@@ -557,7 +651,11 @@ function Private() {
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
             </select>
-            <button className="button" onClick={getSentence}>
+            <button
+              className="button"
+              onClick={getSentence}
+              disabled={isButtonDisabled}
+            >
               Start
             </button>
           </>
